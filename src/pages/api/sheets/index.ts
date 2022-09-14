@@ -25,10 +25,13 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
       range: "Contacts and Info!A4:B",
     };
 
+    console.log("Attempting to retrieve sheet values");
     let response = await sheetsAPI.spreadsheets.values.get(opt);
 
+    console.log("Sheet values obtained");
     return res.status(200).json(response.data.values);
   } catch (err) {
+    console.warn("Error has occurred");
     return res.status(500).json({
       error: err,
     });
