@@ -9,7 +9,7 @@ const sendMessage = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const phoneList = JSON.parse(phone) as string[];
 
-    phoneList.forEach(async (number) => {
+    const requests = phoneList.map(async (number) => {
       await client.messages.create({
         body: message,
         from: "+18647138420",
@@ -17,7 +17,9 @@ const sendMessage = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     });
 
-    return res.status(200);
+    await Promise.all(requests);
+
+    return res.status(200).send({});
   } catch (err) {
     return res.status(500).send({
       error: err,
