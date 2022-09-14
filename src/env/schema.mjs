@@ -6,12 +6,15 @@ import { z } from "zod";
  * This way you can ensure the app isn't built with invalid env vars.
  */
 export const serverSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  NODE_ENV: z.enum(["development", "test", "production"]),
-  NEXTAUTH_SECRET: z.string(),
+  // NEXTAUTH_SECRET: z.string(),
   NEXTAUTH_URL: z.string().url(),
-  DISCORD_CLIENT_ID: z.string(),
-  DISCORD_CLIENT_SECRET: z.string(),
+  SHEETS_READER_ID: z.string(),
+  SHEETS_READER_SECRET: z.string(),
+  TWILIO_SID: z.string(),
+  TWILIO_AUTH_TOKEN: z.string(),
+  GOOGLE_SHEETS_ID: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
 });
 
 /**
