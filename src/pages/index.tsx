@@ -10,12 +10,14 @@ interface User {
   phone: string;
 }
 
-const TEST_RECEPIENT: string = "780-850-8369";
+const TEST_RECIPIENT: string = "780-850-8369";
 
 const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
   "baffooneries@gmail.com",
 ]);
+
+const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -65,6 +67,11 @@ const AuthShowcase: React.FC = () => {
   const [checkedPhoneNumbers, setCheckedPhoneNumbers] = React.useState<
     Set<string>
   >(new Set());
+
+  const [useTestNumber, setUseTestNumber] = React.useState<boolean>(
+    !IS_PRODUCTION,
+  );
+
   const [messagePlaceholder, setMessagePlaceholder] =
     React.useState<string>("");
 
@@ -175,14 +182,13 @@ const AuthShowcase: React.FC = () => {
       unitPrice,
     );
 
-    const recepients =
-      process.env.NODE_ENV === "production" ? numbers : TEST_RECEPIENT;
+    const recipients = useTestNumber ? numbers : TEST_RECIPIENT;
 
     mutate({
-      phone: recepients,
+      phone: recipients,
       message: `${refactoredMessage}`,
     });
-  }, [mutate, numbers, unitPrice]);
+  }, [mutate, numbers, useTestNumber, unitPrice]);
 
   const handleContactRemove = React.useCallback(
     (phoneNumber: string) => {
@@ -362,6 +368,12 @@ const AuthShowcase: React.FC = () => {
         >
           Send
         </button>
+        {useTestNumber ? (
+          <section id="test-user" className="mt-4">
+            <p>Using number</p>
+            <span>{TEST_RECIPIENT}</span>
+          </section>
+        ) : null}
       </form>
       {sendMessageError && (
         <span>An error has occurred when attempting to send the message</span>
@@ -395,11 +407,26 @@ const AuthShowcase: React.FC = () => {
       <section id="selected-contacts" className="mx-4">
         <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
           <span className="text-violet-500">R</span>
-          ecpients
+          ecipients
         </h3>
         {selectedContacts.map(({ name, phone }, i) => {
           return GetContactButton(name, phone, handleContactRemove);
         })}
+      </section>
+      <section id="twilio-redirect">
+        <h3 className="text-5xl md:text-[2rem] font-extrabold mb-2 text-gray-700">
+          <span className="text-violet-500">O</span>
+          ptions
+        </h3>
+        <input
+          type={"checkbox"}
+          checked={useTestNumber}
+          onChange={() => {
+            setUseTestNumber(!useTestNumber);
+          }}
+          className="mr-2"
+        />
+        <span>Use Test Number</span>
       </section>
     </div>
   );

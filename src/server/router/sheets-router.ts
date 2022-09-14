@@ -42,10 +42,13 @@ const convertContacts = (data: any): User[] => {
 export const sheetsRouter = createProtectedRouter().query("getContacts", {
   output: User.array(),
   resolve: async () => {
-    const response = await fetch(`${getBaseUrl()}/api/sheets`);
+    try {
+      const response = await fetch(`${getBaseUrl()}/api/sheets`);
+      const data = await response.json();
 
-    const data = await response.json();
-
-    return convertContacts(data);
+      return convertContacts(data);
+    } catch (err) {
+      throw err;
+    }
   },
 });

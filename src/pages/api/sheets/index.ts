@@ -13,12 +13,7 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
 
     client.authorize(async (err, _) => {
       if (err) {
-        console.error(
-          "Error occurred in authorization",
-          err,
-          env.SHEETS_READER_ID,
-          env.SHEETS_READER_SECRET,
-        );
+        console.error("Error occurred in authorization", err);
         return res.status(400).send(JSON.stringify({ error: true }));
       }
 
@@ -39,10 +34,7 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     });
   } catch (err) {
-    console.warn("Error has occurred");
-    res.status(500).json({
-      error: err,
-    });
+    res.status(500).json(err);
 
     return;
   }
