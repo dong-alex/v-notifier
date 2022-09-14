@@ -182,7 +182,7 @@ const AuthShowcase: React.FC = () => {
       phone: recepients,
       message: `${refactoredMessage}`,
     });
-  }, [numbers, unitPrice]);
+  }, [mutate, numbers, unitPrice]);
 
   const handleContactRemove = React.useCallback(
     (phoneNumber: string) => {
