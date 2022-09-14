@@ -44,7 +44,7 @@ export const sheetsRouter = createProtectedRouter().query("getContacts", {
   resolve: async () => {
     const response = await fetch(`${getBaseUrl()}/api/sheets`);
 
-    const data = await response.json();
+    const { data } = await response.json();
 
     return convertContacts(data);
   },

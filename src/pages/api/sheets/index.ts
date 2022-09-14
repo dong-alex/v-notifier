@@ -13,6 +13,7 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
 
     client.authorize(async (err, _) => {
       if (err) {
+        console.error("Error in client authorization");
         return res.status(400).send(JSON.stringify({ error: true }));
       }
     });
@@ -29,12 +30,18 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
     let response = await sheetsAPI.spreadsheets.values.get(opt);
 
     console.log("Sheet values obtained");
-    return res.status(200).json(response.data.values);
+    res.status(200).json({
+      data: response.data.values,
+    });
+
+    return;
   } catch (err) {
     console.warn("Error has occurred");
-    return res.status(500).json({
+    res.status(500).json({
       error: err,
     });
+
+    return;
   }
 };
 
