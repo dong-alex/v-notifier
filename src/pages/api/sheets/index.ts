@@ -13,6 +13,12 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
 
     client.authorize(async (err, _) => {
       if (err) {
+        console.error(
+          "Error occurred in authorization",
+          err,
+          env.SHEETS_READER_ID,
+          env.SHEETS_READER_SECRET,
+        );
         return res.status(400).send(JSON.stringify({ error: true }));
       }
 
