@@ -1,5 +1,4 @@
 import { createProtectedRouter } from "./context";
-import { AUTHORIZED_USERS } from "./context";
 import { z } from "zod";
 
 const User = z.object({
@@ -42,7 +41,7 @@ const convertContacts = (data: any): User[] => {
 export const sheetsRouter = createProtectedRouter().query("getContacts", {
   output: User.array(),
   resolve: async () => {
-    const response = await fetch("http://localhost:3000/api/sheets");
+    const response = await fetch("/api/sheets");
 
     const data = await response.json();
 
