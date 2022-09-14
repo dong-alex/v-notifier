@@ -13,9 +13,6 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
 
     client.authorize(async (err, _) => {
       if (err) {
-        console.error(env.SHEETS_READER_ID, env.SHEETS_READER_SECRET);
-
-        console.error("Error in client authorization");
         return res.status(400).send(JSON.stringify({ error: true }));
       }
 
@@ -31,9 +28,7 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
       let response = await sheetsAPI.spreadsheets.values.get(opt);
 
       console.log("Sheet values obtained");
-      res.status(200).json({
-        data: response.data.values,
-      });
+      res.status(200).json(response.data.values);
 
       return;
     });
