@@ -6,7 +6,7 @@ import { z } from "zod";
  * This way you can ensure the app isn't built with invalid env vars.
  */
 export const serverSchema = z.object({
-  // NEXTAUTH_SECRET: z.string(),
+  NEXTAUTH_SECRET: z.string(),
   NEXTAUTH_URL: z.string().url(),
   SHEETS_READER_ID: z.string(),
   SHEETS_READER_SECRET: z.string(),
