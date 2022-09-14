@@ -11,6 +11,7 @@ type CreateContextOptions = {
 export const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
   "adong@ualberta.ca",
+  "kevinlam13@hotmail.com",
 ]);
 
 /** Use this helper for:

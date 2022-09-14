@@ -15,6 +15,7 @@ const TEST_RECIPIENT: string = "780-850-8369";
 const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
   "baffooneries@gmail.com",
+  "kevinlam13@hotmail.com",
 ]);
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
