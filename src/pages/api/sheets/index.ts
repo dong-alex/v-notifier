@@ -13,28 +13,30 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
 
     client.authorize(async (err, _) => {
       if (err) {
+        console.error(env.SHEETS_READER_ID, env.SHEETS_READER_SECRET);
+
         console.error("Error in client authorization");
         return res.status(400).send(JSON.stringify({ error: true }));
       }
+
+      const sheetsAPI = google.sheets({ version: "v4", auth: client });
+
+      // TODO: take in name of sheet and range
+      const opt = {
+        spreadsheetId: env.GOOGLE_SHEETS_ID,
+        range: "Contacts and Info!A4:B",
+      };
+
+      console.log("Attempting to retrieve sheet values");
+      let response = await sheetsAPI.spreadsheets.values.get(opt);
+
+      console.log("Sheet values obtained");
+      res.status(200).json({
+        data: response.data.values,
+      });
+
+      return;
     });
-
-    const sheetsAPI = google.sheets({ version: "v4", auth: client });
-
-    // TODO: take in name of sheet and range
-    const opt = {
-      spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: "Contacts and Info!A4:B",
-    };
-
-    console.log("Attempting to retrieve sheet values");
-    let response = await sheetsAPI.spreadsheets.values.get(opt);
-
-    console.log("Sheet values obtained");
-    res.status(200).json({
-      data: response.data.values,
-    });
-
-    return;
   } catch (err) {
     console.warn("Error has occurred");
     res.status(500).json({
