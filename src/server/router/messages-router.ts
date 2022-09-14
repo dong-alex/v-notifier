@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getBaseUrl } from "../../pages/_app";
 import { createProtectedRouter } from "./context";
 
 export const messagesRouter = createProtectedRouter().mutation("send", {
@@ -8,7 +9,7 @@ export const messagesRouter = createProtectedRouter().mutation("send", {
   }),
   resolve: async ({ ctx, input }) => {
     try {
-      await fetch(`/api/message`, {
+      await fetch(`${getBaseUrl()}/api/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

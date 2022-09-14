@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { env } from "../../../env/server.mjs";
 
 export const authOptions: NextAuthOptions = {
+  secret: env.NEXTAUTH_SECRET,
   // Include user.id on session
   callbacks: {
     session({ session }) {
@@ -16,7 +17,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-  secret: env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOptions);

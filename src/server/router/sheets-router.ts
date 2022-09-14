@@ -1,5 +1,6 @@
 import { createProtectedRouter } from "./context";
 import { z } from "zod";
+import { getBaseUrl } from "../../pages/_app";
 
 const User = z.object({
   name: z.string().nullish(),
@@ -41,7 +42,7 @@ const convertContacts = (data: any): User[] => {
 export const sheetsRouter = createProtectedRouter().query("getContacts", {
   output: User.array(),
   resolve: async () => {
-    const response = await fetch("/api/sheets");
+    const response = await fetch(`${getBaseUrl()}/api/sheets`);
 
     const data = await response.json();
 
