@@ -58,17 +58,17 @@ export default withTRPC<AppRouter>({
       },
 
       // To use SSR properly you need to forward the client's headers to the server
-      headers: () => {
-        if (ctx?.req) {
-          const headers = ctx?.req?.headers;
-          delete headers?.connection;
-          return {
-            ...headers,
-            "x-ssr": "1",
-          };
-        }
-        return {};
-      },
+      // headers: () => {
+      //   if (ctx?.req) {
+      //     const headers = ctx?.req?.headers;
+      //     delete headers?.connection;
+      //     return {
+      //       ...headers,
+      //       "x-ssr": "1",
+      //     };
+      //   }
+      //   return {};
+      // },
     };
   },
   /**
