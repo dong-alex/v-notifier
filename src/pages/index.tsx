@@ -182,13 +182,15 @@ const AuthShowcase: React.FC = () => {
       unitPrice,
     );
 
-    const recipients = useTestNumber ? numbers : TEST_RECIPIENT;
+    const recipients: string[] = useTestNumber
+      ? [TEST_RECIPIENT]
+      : Array.from(checkedPhoneNumbers);
 
     mutate({
-      phone: recipients,
+      phone: JSON.stringify(recipients),
       message: `${refactoredMessage}`,
     });
-  }, [mutate, numbers, useTestNumber, unitPrice]);
+  }, [unitPrice, useTestNumber, checkedPhoneNumbers, mutate]);
 
   const handleContactRemove = React.useCallback(
     (phoneNumber: string) => {

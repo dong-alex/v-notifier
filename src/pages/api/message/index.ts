@@ -7,15 +7,17 @@ const sendMessage = async (req: NextApiRequest, res: NextApiResponse) => {
   const { phone, message } = req.body;
 
   try {
-    const response = await client.messages.create({
-      body: message,
-      from: "+18647138420",
-      to: phone,
+    const phoneList = JSON.parse(phone) as string[];
+
+    phoneList.forEach(async (number) => {
+      await client.messages.create({
+        body: message,
+        from: "+18647138420",
+        to: number,
+      });
     });
 
-    const data = response.toJSON();
-
-    return res.status(200).send(data);
+    return res.status(200);
   } catch (err) {
     return res.status(500).send({
       error: err,
