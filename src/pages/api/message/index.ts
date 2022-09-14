@@ -15,9 +15,9 @@ const sendMessage = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const data = response.toJSON();
 
-    res.status(200).send(data);
+    return res.status(200).send(data);
   } catch (err) {
-    res.status(500).send({
+    return res.status(500).send({
       error: err,
     });
   }

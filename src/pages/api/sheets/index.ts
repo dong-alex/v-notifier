@@ -27,9 +27,9 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
 
     let response = await sheetsAPI.spreadsheets.values.get(opt);
 
-    res.status(200).json(response.data.values);
+    return res.status(200).json(response.data.values);
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       error: err,
     });
   }
