@@ -11,7 +11,7 @@ type CreateContextOptions = {
 export const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
   "adong@ualberta.ca",
-])
+]);
 
 /** Use this helper for:
  *  - testing, where we don't have to Mock Next.js' req/res
@@ -42,25 +42,30 @@ export const createContext = async (
 
 type Context = trpc.inferAsyncReturnType<typeof createContext>;
 
-export const createRouter = () => trpc.router<Context>().middleware(({ ctx, next}) => {
-  if (!ctx.session || !ctx.session.user) {
-    throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
-  }
-
-  return next({
-    ctx: {
-      ...ctx,
-      session: { ...ctx.session, user: ctx.session.user }
+export const createRouter = () =>
+  trpc.router<Context>().middleware(({ ctx, next }) => {
+    if (!ctx.session || !ctx.session.user) {
+      throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
     }
-  })
-});
+
+    return next({
+      ctx: {
+        ...ctx,
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
+  });
 
 /**
  * Creates a tRPC router that asserts all queries and mutations are from an authorized user. Will throw an unauthorized error if a user is not signed in.
  **/
 export function createProtectedRouter() {
   return createRouter().middleware(({ ctx, next }) => {
-    if (!ctx.session || !ctx.session.user || !AUTHORIZED_USERS.has(ctx.session.user.email ?? '')) {
+    if (
+      !ctx.session ||
+      !ctx.session.user ||
+      !AUTHORIZED_USERS.has(ctx.session.user.email ?? "")
+    ) {
       throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({

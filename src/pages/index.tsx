@@ -10,12 +10,12 @@ interface User {
   phone: string;
 }
 
-const TEST_RECEPIENT: string = "780-850-8369"
+const TEST_RECEPIENT: string = "780-850-8369";
 
 const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
-  "baffooneries@gmail.com"
-])
+  "baffooneries@gmail.com",
+]);
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -65,13 +65,10 @@ const AuthShowcase: React.FC = () => {
   const [checkedPhoneNumbers, setCheckedPhoneNumbers] = React.useState<
     Set<string>
   >(new Set());
-  const [messagePlaceholder, setMessagePlaceholder] = React.useState<string>("");
+  const [messagePlaceholder, setMessagePlaceholder] =
+    React.useState<string>("");
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-  } = useForm();
+  const { register, handleSubmit, watch } = useForm();
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -83,7 +80,9 @@ const AuthShowcase: React.FC = () => {
     enabled: !!sessionData?.user,
   });
 
-  const { mutate, error: sendMessageError } = trpc.useMutation(["messages.send"]);
+  const { mutate, error: sendMessageError } = trpc.useMutation([
+    "messages.send",
+  ]);
 
   const {
     data: contacts,
@@ -101,10 +100,10 @@ const AuthShowcase: React.FC = () => {
 
   const filteredContacts: User[] = React.useMemo(() => {
     if (!contacts) {
-      return []
+      return [];
     }
 
-    const result: User[] = []
+    const result: User[] = [];
 
     contacts.forEach(({ name, phone }) => {
       if (!phone || !name) {
@@ -114,22 +113,22 @@ const AuthShowcase: React.FC = () => {
       if (!checkedPhoneNumbers.has(phone)) {
         result.push({
           name,
-          phone
-        })
+          phone,
+        });
       }
-    })
+    });
 
-    return result
+    return result;
   }, [contacts, checkedPhoneNumbers]);
 
   const selectedContacts: User[] = React.useMemo(() => {
     if (!contacts) {
-      return []
+      return [];
     }
 
-    const result: User[] = []
+    const result: User[] = [];
 
-    contacts.forEach(({ name, phone}) => {
+    contacts.forEach(({ name, phone }) => {
       if (!phone || !name) {
         return;
       }
@@ -138,60 +137,67 @@ const AuthShowcase: React.FC = () => {
         result.push({
           name,
           phone,
-        })
+        });
       }
-    })
+    });
 
-    return result
+    return result;
   }, [contacts, checkedPhoneNumbers]);
 
   const unitPrice: string = React.useMemo(() => {
     if (checkedPhoneNumbers.size === 0) {
-      return "0.00"
+      return "0.00";
     }
 
-    return String((Number(totalPrice) / checkedPhoneNumbers.size).toFixed(2))
+    return String((Number(totalPrice) / checkedPhoneNumbers.size).toFixed(2));
   }, [totalPrice, checkedPhoneNumbers]);
 
-  const hoverEmail = React.useCallback((email: string) => {
-
-    if (!textareaRef.current) {
-      return;
-    }
-
-    setMessagePlaceholder(`Send ${unitPrice} to ${email} for the recent booking`);
-  }, [unitPrice]);
-
-  const onSubmit = React.useCallback(
-    async () => {
+  const hoverEmail = React.useCallback(
+    (email: string) => {
       if (!textareaRef.current) {
         return;
       }
 
-      let refactoredMessage = textareaRef.current.value.replace("{unit-price}", unitPrice)
-
-      const recepients = process.env.NODE_ENV === "production" ? numbers : TEST_RECEPIENT
-
-      mutate({
-        phone: recepients,
-        message: `${refactoredMessage}`,
-      });
+      setMessagePlaceholder(
+        `Send ${unitPrice} to ${email} for the recent booking`,
+      );
     },
-    [numbers, unitPrice],
+    [unitPrice],
   );
 
-  const handleContactRemove = React.useCallback((phoneNumber: string) => {
-    if (!checkedPhoneNumbers.has(phoneNumber)) {
+  const onSubmit = React.useCallback(async () => {
+    if (!textareaRef.current) {
       return;
     }
 
-    const numbers: string[] = Array.from(checkedPhoneNumbers).filter(
-      (n) => n !== phoneNumber,
+    let refactoredMessage = textareaRef.current.value.replace(
+      "{unit-price}",
+      unitPrice,
     );
 
-    setCheckedPhoneNumbers(new Set(numbers));
+    const recepients =
+      process.env.NODE_ENV === "production" ? numbers : TEST_RECEPIENT;
 
-  }, [checkedPhoneNumbers]);
+    mutate({
+      phone: recepients,
+      message: `${refactoredMessage}`,
+    });
+  }, [numbers, unitPrice]);
+
+  const handleContactRemove = React.useCallback(
+    (phoneNumber: string) => {
+      if (!checkedPhoneNumbers.has(phoneNumber)) {
+        return;
+      }
+
+      const numbers: string[] = Array.from(checkedPhoneNumbers).filter(
+        (n) => n !== phoneNumber,
+      );
+
+      setCheckedPhoneNumbers(new Set(numbers));
+    },
+    [checkedPhoneNumbers],
+  );
 
   const handleContactAdd = React.useCallback(
     (phoneNumber: string) => {
@@ -199,21 +205,25 @@ const AuthShowcase: React.FC = () => {
         new Set([...Array.from(checkedPhoneNumbers), phoneNumber]),
       );
     },
-  [checkedPhoneNumbers]);
+    [checkedPhoneNumbers],
+  );
 
-  const GetContactButton = React.useCallback((name: string, phone: string, handler: (number: string) => void) => {
-    return (
-      <button
-        className="border-2 space-x-4 my-4 py-2 px-12 min-w-full cursor-pointer rounded-3xl hover:border-indigo-400 flex flex-col"
-        onClick={() => {
-          handler(phone);
-        }}
-      >
-        <span className="text-blue-500">{name}</span>
-        <span>{phone}</span>
-      </button>
-    )
-  }, [])
+  const GetContactButton = React.useCallback(
+    (name: string, phone: string, handler: (number: string) => void) => {
+      return (
+        <button
+          className="border-2 space-x-4 my-4 py-2 px-12 min-w-full cursor-pointer rounded-3xl hover:border-indigo-400 flex flex-col"
+          onClick={() => {
+            handler(phone);
+          }}
+        >
+          <span className="text-blue-500">{name}</span>
+          <span>{phone}</span>
+        </button>
+      );
+    },
+    [],
+  );
 
   if (!sessionData) {
     return null;
@@ -231,18 +241,17 @@ const AuthShowcase: React.FC = () => {
     <div className="flex">
       <div>
         <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
-            <span className="text-violet-500">C</span>
-            ontacts
-          </h3>
+          <span className="text-violet-500">C</span>
+          ontacts
+        </h3>
         <div className="overflow-y-auto h-screen px-8 my-4 mr-8">
-          {
-            filteredContacts.map(({ name, phone }) => (
-              GetContactButton(name, phone, handleContactAdd)
-          ))}
+          {filteredContacts.map(({ name, phone }) =>
+            GetContactButton(name, phone, handleContactAdd),
+          )}
         </div>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="mr-4">
-      <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
+        <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
           <span className="text-violet-500">P</span>
           ayment
         </h3>
@@ -354,27 +363,33 @@ const AuthShowcase: React.FC = () => {
           Send
         </button>
       </form>
-      {
-        sendMessageError && 
+      {sendMessageError && (
         <span>An error has occurred when attempting to send the message</span>
-      }
+      )}
       <section id="etransfer-emails" className="flex flex-col gap-4 mx-4">
-      <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
+        <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
           <span className="text-violet-500">E</span>
           transfer Emails
         </h3>
-        {Array.from(AUTHORIZED_USERS).map((email: string) => {
-          return <button className="border-2 border-indigo-200 p-4 rounded-xl hover:border-indigo-600" onMouseOver={() => {
-            hoverEmail(email);
-          }} onClick={() => {
-            if (!textareaRef.current) {
-              return;
-            }
+        {Array.from(AUTHORIZED_USERS).map((email: string, i) => {
+          return (
+            <button
+              key={i}
+              className="border-2 border-indigo-200 p-4 rounded-xl hover:border-indigo-600"
+              onMouseOver={() => {
+                hoverEmail(email);
+              }}
+              onClick={() => {
+                if (!textareaRef.current) {
+                  return;
+                }
 
-            textareaRef.current.value = messagePlaceholder
-          }}>
-            {email}
-          </button>
+                textareaRef.current.value = messagePlaceholder;
+              }}
+            >
+              {email}
+            </button>
+          );
         })}
       </section>
       <section id="selected-contacts" className="mx-4">
