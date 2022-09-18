@@ -150,6 +150,10 @@ const AuthShowcase: React.FC = () => {
         message: `${refactoredMessage}`,
       });
     }, [unitPrice, useTestNumber, checkedPhoneNumbers, mutate]);
+
+    const handleClearAll = () => {
+      setCheckedPhoneNumbers(new Set());
+    };
   
     const handleContactRemove = React.useCallback(
       (phoneNumber: string) => {
@@ -272,7 +276,7 @@ const AuthShowcase: React.FC = () => {
         {sendMessageError && (
           <span>An error has occurred when attempting to send the message</span>
         )}
-        <ContactSection name="Recipients" contactArray={selectedContacts} contactHandler={handleContactRemove} />
+        <ContactSection name="Recipients" contactArray={selectedContacts} contactHandler={handleContactRemove} clearAllHandler={handleClearAll} />
       </div>
     );
   };

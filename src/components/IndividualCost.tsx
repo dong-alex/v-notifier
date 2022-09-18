@@ -5,10 +5,8 @@ interface Props {
   unitPrice: string;
 }
 
-
-const IndividualCost = ({ unitPrice }: Props) => {
-  return (
-    <div className="relative mt-1 rounded-md shadow-sm">
+const IndividualCost = ({ unitPrice }: Props) => (
+  <div className="relative mt-1 rounded-md shadow-sm">
     <MoneySymbol />
     <input
       type="number"
@@ -22,7 +20,6 @@ const IndividualCost = ({ unitPrice }: Props) => {
     />
     <CurrencyDisplay />
   </div>
-  )
-};
+);
 
 export default IndividualCost
