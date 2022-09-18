@@ -311,7 +311,7 @@ const AuthShowcase: React.FC = () => {
             className="block text-sm font-medium text-gray-700"
           >
             E-transfer email
-          </label>
+        </label>
         <select id="etransfer-email" onChange={(e) => hoverEmail(e.target.value)} className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <option selected disabled>Choose an email</option>
             {
@@ -350,7 +350,7 @@ const AuthShowcase: React.FC = () => {
               id="exampleFormControlTextarea1"
               rows={3}
               ref={textareaRef}
-              placeholder={messagePlaceholder}
+              defaultValue={messagePlaceholder}
             />
           </div>
           <div className="flex flex-row">
