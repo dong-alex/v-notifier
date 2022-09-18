@@ -1,9 +1,11 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
+import SectionHeader from "../components/SectionHeader";
+import ContactList from "../components/ContactList";
 
 interface User {
   name: string;
@@ -27,33 +29,33 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>V-Notifier</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/volleyball-emoji.png" />
       </Head>
+      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900 border-y dark:bg-gray-800 dark:border-gray-600">
+        <div className="container flex flex-wrap justify-between items-center mx-auto">
+          <div className="flex items-center">
+            <img src="/volleyball-emoji.png" className="mr-3 h-6 sm:h-9" alt="Volleyball Emoji" />
+            <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"><span className="text-purple-300">V</span> Notifier</span>
+          </div>
+         <div className="space-x-2">
+          {sessionData && (
+            <span>
+              👋 Signed in as {" "}
+              <span className="text-blue-500">{sessionData.user?.email}</span>
+            </span>
+          )}
 
-      <main className="container flex mx-auto flex-col p-4">
-        <section
-          id="header"
-          className="flex justify-between items-center w-full"
-        >
-          <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
-            <span className="text-purple-300">V</span> Notifier
-          </h1>
-          <div className="space-x-2">
-            {sessionData && (
-              <span>
-                Logged in as{" "}
-                <span className="text-blue-500">{sessionData.user?.email}</span>
-              </span>
-            )}
             <button
-              className="px-4 py-0 border border-black text-xl rounded-md bg-violet-50 hover:bg-violet-100 shadow-lg h-1/2"
+              type="button" className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
               onClick={sessionData ? () => signOut() : () => signIn()}
             >
               {sessionData ? "Sign out" : "Sign in"}
             </button>
           </div>
-        </section>
+        </div>
+      </nav>
 
+      <main className="container flex mx-auto flex-col p-4">
         <section id="users" className="items-start h-full">
           <AuthShowcase />
         </section>
@@ -73,8 +75,7 @@ const AuthShowcase: React.FC = () => {
     !IS_PRODUCTION,
   );
 
-  const [messagePlaceholder, setMessagePlaceholder] =
-    React.useState<string>("");
+  const [messagePlaceholder, setMessagePlaceholder] = useState<string>("");
 
   const { register, handleSubmit, watch } = useForm();
 
@@ -217,23 +218,6 @@ const AuthShowcase: React.FC = () => {
     [checkedPhoneNumbers],
   );
 
-  const GetContactButton = React.useCallback(
-    (name: string, phone: string, handler: (number: string) => void) => {
-      return (
-        <button
-          className="border-2 space-x-4 my-4 py-2 px-12 min-w-full cursor-pointer rounded-3xl hover:border-indigo-400 flex flex-col"
-          onClick={() => {
-            handler(phone);
-          }}
-        >
-          <span className="text-blue-500">{name}</span>
-          <span>{phone}</span>
-        </button>
-      );
-    },
-    [],
-  );
-
   if (!sessionData) {
     return null;
   }
@@ -248,23 +232,13 @@ const AuthShowcase: React.FC = () => {
 
   return (
     <div className="flex">
-      <div>
-        <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
-          <span className="text-violet-500">C</span>
-          ontacts
-        </h3>
-        <div className="overflow-y-auto h-screen px-8 my-4 mr-8">
-          {filteredContacts.map(({ name, phone }) =>
-            GetContactButton(name, phone, handleContactAdd),
-          )}
-        </div>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="mr-4">
-        <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
-          <span className="text-violet-500">P</span>
-          ayment
-        </h3>
-        <div>
+      <section id="contacts" className="w-96">
+        <SectionHeader name="Contacts" />
+        <ContactList contactArray={filteredContacts} contactHandler={handleContactAdd} />
+      </section>
+      <form onSubmit={handleSubmit(onSubmit)} className="mr-4 w-80">
+        <SectionHeader name="Payment" />
+        <div className="mt-5">
           <label
             htmlFor="price"
             className="block text-sm font-medium text-gray-700"
@@ -297,12 +271,12 @@ const AuthShowcase: React.FC = () => {
             </div>
           </div>
         </div>
-        <div>
+        <div className="my-5">
           <label
             htmlFor="price"
             className="block text-sm font-medium text-gray-700"
           >
-            Per Person Price
+            Individual price for {checkedPhoneNumbers.size} persons
           </label>
           <div className="relative mt-1 rounded-md shadow-sm">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -331,8 +305,23 @@ const AuthShowcase: React.FC = () => {
             </div>
           </div>
         </div>
-        <p>Total amount of persons: {checkedPhoneNumbers.size}</p>
-        <div className="flex justify-center">
+        <div className="my-5">
+        <label
+            htmlFor="etransfer-email"
+            className="block text-sm font-medium text-gray-700"
+          >
+            E-transfer email
+          </label>
+        <select id="etransfer-email" onChange={(e) => hoverEmail(e.target.value)} className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option selected disabled>Choose an email</option>
+            {
+              Array.from(AUTHORIZED_USERS).map((email: string, i) => (
+                <option value={email} key={i}>{email}</option>
+              ))
+            }
+          </select>
+        </div>
+        <div className="flex justify-center flex-col">
           <div className="mb-3 xl:w-96">
             <label
               htmlFor="text-message"
@@ -364,72 +353,32 @@ const AuthShowcase: React.FC = () => {
               placeholder={messagePlaceholder}
             />
           </div>
+          <div className="flex flex-row">
+          <input
+            type={"checkbox"}
+            checked={useTestNumber}
+            onChange={() => {
+              setUseTestNumber(!useTestNumber);
+            }}
+            className="mr-2"
+          />
+          <span className="leading-none">Use Test Number: {TEST_RECIPIENT}</span>
+          </div>
         </div>
+
         <button
-          className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg"
+          className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full"
           type="submit"
         >
           Send
         </button>
-        {useTestNumber ? (
-          <section id="test-user" className="mt-4">
-            <p>Using number</p>
-            <span>{TEST_RECIPIENT}</span>
-          </section>
-        ) : null}
       </form>
       {sendMessageError && (
         <span>An error has occurred when attempting to send the message</span>
       )}
-      <section id="etransfer-emails" className="flex flex-col gap-4 mx-4">
-        <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
-          <span className="text-violet-500">E</span>
-          transfer Emails
-        </h3>
-        {Array.from(AUTHORIZED_USERS).map((email: string, i) => {
-          return (
-            <button
-              key={i}
-              className="border-2 border-indigo-200 p-4 rounded-xl hover:border-indigo-600"
-              onMouseOver={() => {
-                hoverEmail(email);
-              }}
-              onClick={() => {
-                if (!textareaRef.current) {
-                  return;
-                }
-
-                textareaRef.current.value = messagePlaceholder;
-              }}
-            >
-              {email}
-            </button>
-          );
-        })}
-      </section>
-      <section id="selected-contacts" className="mx-4">
-        <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
-          <span className="text-violet-500">R</span>
-          ecipients
-        </h3>
-        {selectedContacts.map(({ name, phone }, i) => {
-          return GetContactButton(name, phone, handleContactRemove);
-        })}
-      </section>
-      <section id="twilio-redirect">
-        <h3 className="text-5xl md:text-[2rem] font-extrabold mb-2 text-gray-700">
-          <span className="text-violet-500">O</span>
-          ptions
-        </h3>
-        <input
-          type={"checkbox"}
-          checked={useTestNumber}
-          onChange={() => {
-            setUseTestNumber(!useTestNumber);
-          }}
-          className="mr-2"
-        />
-        <span>Use Test Number</span>
+      <section id="selected-contacts" className="w-96">
+        <SectionHeader name="Recipients" />
+        <ContactList contactArray={selectedContacts} contactHandler={handleContactRemove} />
       </section>
     </div>
   );
