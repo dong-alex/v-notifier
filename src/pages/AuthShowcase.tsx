@@ -66,7 +66,7 @@ const AuthShowcase: React.FC = () => {
     useEffect(() => {
       if (isSuccess) {
         setDisplayToast({display: true, countSent: checkedPhoneNumbers.size})
-        setTimeout(() => setDisplayToast({display: false, ...displayToast}), 8000)
+        setTimeout(() => setDisplayToast({display: false, countSent: displayToast.countSent}), 8000)
         handleClearAll()
       }
     }, [isSuccess])
