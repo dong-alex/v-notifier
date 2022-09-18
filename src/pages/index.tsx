@@ -316,7 +316,7 @@ const AuthShowcase: React.FC = () => {
             <option selected disabled>Choose an email</option>
             {
               Array.from(AUTHORIZED_USERS).map((email: string, i) => (
-                <option value={email}>{email}</option>
+                <option value={email} key={i}>{email}</option>
               ))
             }
           </select>
