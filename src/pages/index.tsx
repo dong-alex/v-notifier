@@ -12,7 +12,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>V-Notifier</title>
+        <title>V Notifier</title>
         <link rel="icon" href="/volleyball-emoji.png" />
       </Head>
       <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900 border-y dark:bg-gray-800 dark:border-gray-600">
@@ -24,8 +24,9 @@ const Home: NextPage = () => {
          <div className="space-x-2">
           {sessionData && (
             <span>
-              👋 Signed in as {" "}
-              <span className="text-blue-500">{sessionData.user?.email}</span>
+              👋 Welcome {" "}
+              <span className="text-blue-500">{sessionData.user?.name || sessionData.user?.email}</span>
+              !
             </span>
           )}
 
