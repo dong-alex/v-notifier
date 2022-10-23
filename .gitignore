@@ -106,3 +106,5 @@ dist
 
 # local configs
 reader-key.json
+
+.DS_Store
