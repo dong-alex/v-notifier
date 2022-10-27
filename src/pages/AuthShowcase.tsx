@@ -32,7 +32,7 @@ const AuthShowcase: React.FC = () => {
     Set<string>
   >(new Set());
 
-  const [sentNumbers, setSentNumbers] = useState(new Set());
+  const [sentNumbers, setSentNumbers] = useState<Set<string>>(new Set());
 
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [showRecentMessages, setShowRecentMessages] = useState<boolean>(false);
@@ -73,7 +73,7 @@ const AuthShowcase: React.FC = () => {
   useEffect(() => {
     if (isSuccess) {
       setDisplayToast({ display: true, countSent: checkedPhoneNumbers.size });
-      handleContactSent(checkedPhoneNumbers)
+      handleContactSent()
       setTimeout(
         () =>
           setDisplayToast({
@@ -207,10 +207,9 @@ const AuthShowcase: React.FC = () => {
     [checkedPhoneNumbers],
   );
 
-  const handleContactSent = React.useCallback(
-    (phoneNumber: string) => {
+  const handleContactSent = React.useCallback(() => {
       setSentNumbers(
-        new Set([...Array.from(checkedPhoneNumbers), ...Array.from(sentNumbers)]),
+        new Set([...Array.from(checkedPhoneNumbers), ...Array.from(sentNumbers)]) as Set<string>,
       );
     },
     [sentNumbers, checkedPhoneNumbers],
