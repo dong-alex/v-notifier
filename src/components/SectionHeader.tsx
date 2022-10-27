@@ -4,7 +4,6 @@ interface Props {
   name: string;
 }
 
-
 const SectionHeader = ({name}: Props) => {
   return (
     <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">

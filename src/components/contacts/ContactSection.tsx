@@ -7,13 +7,14 @@ interface Props {
   contactArray: Array<{name: string, phone: string}>;
   contactHandler: (number: string) => void;
   clearAllHandler?: () => void;
+  sentContacts: Set<string>;
 }
 
-const ContactSection = ({ name, contactArray, contactHandler, clearAllHandler }: Props) => {
+const ContactSection = ({ name, contactArray, contactHandler, clearAllHandler, sentContacts }: Props) => {
   return (
     <section id={name} className="w-96">
       <SectionHeader name={name} />
-      <ContactList contactArray={contactArray} contactHandler={contactHandler} />
+      <ContactList contactArray={contactArray} contactHandler={contactHandler} sentContacts={sentContacts} />
       {(clearAllHandler && contactArray.length > 0) &&
         <div className="flex justify-end mr-8">
           <button 

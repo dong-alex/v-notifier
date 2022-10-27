@@ -32,7 +32,7 @@ export const RecentMessages = () => {
   return (
     <section id={"recent-messages"} className="flex flex-col">
       <SectionHeader name={"Recent Messages"} />
-      <div className="flex flex-col mt-5">
+      <div className="overflow-y-auto my-4 mr-8 max-h-96 p-2">
         <span className="text-blue-500">(Newest to Oldest)</span>
         {responders.map((m, i) => (
           <div key={`${m.from}-${i}`}>

@@ -32,7 +32,10 @@ const AuthShowcase: React.FC = () => {
     Set<string>
   >(new Set());
 
+  const [sentNumbers, setSentNumbers] = useState(new Set());
+
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
+  const [showRecentMessages, setShowRecentMessages] = useState<boolean>(false);
 
   const [displayToast, setDisplayToast] = useState({
     display: false,
@@ -70,6 +73,7 @@ const AuthShowcase: React.FC = () => {
   useEffect(() => {
     if (isSuccess) {
       setDisplayToast({ display: true, countSent: checkedPhoneNumbers.size });
+      handleContactSent(checkedPhoneNumbers)
       setTimeout(
         () =>
           setDisplayToast({
@@ -203,6 +207,15 @@ const AuthShowcase: React.FC = () => {
     [checkedPhoneNumbers],
   );
 
+  const handleContactSent = React.useCallback(
+    (phoneNumber: string) => {
+      setSentNumbers(
+        new Set([...Array.from(checkedPhoneNumbers), ...Array.from(sentNumbers)]),
+      );
+    },
+    [sentNumbers, checkedPhoneNumbers],
+  );
+
   if (!sessionData) {
     return null;
   }
@@ -221,6 +234,7 @@ const AuthShowcase: React.FC = () => {
         name="Contacts"
         contactArray={filteredContacts}
         contactHandler={handleContactAdd}
+        sentContacts={sentNumbers}
       />
       <form onSubmit={handleSubmit(onSubmit)} className="mr-4 w-80">
         <SectionHeader name="Payment" />
@@ -345,8 +359,13 @@ const AuthShowcase: React.FC = () => {
         contactArray={selectedContacts}
         contactHandler={handleContactRemove}
         clearAllHandler={handleClearAll}
+        sentContacts={sentNumbers}
       />
-      <RecentMessages />
+      <button type="button" className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+        onClick={() => setShowRecentMessages(!showRecentMessages)}>
+        {showRecentMessages ? "Hide Messages" : "Show Messages"}
+      </button>
+      {showRecentMessages && <RecentMessages />}
     </div>
   );
 };
