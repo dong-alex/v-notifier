@@ -1,18 +1,18 @@
 interface SheetData {
   properties: {
-      hidden: boolean;
-      title: string;
-  }
+    hidden: boolean;
+    title: string;
+  };
 }
 
 type SheetName = string;
-type SheetNames = Array<SheetName>
+type SheetNames = Array<SheetName>;
 
 const templateSpreadsheets = new Set([
-  'Fall Schedule',
-  'Contacts and Info',
+  "Fall Schedule",
+  "Contacts and Info",
   '"Template" MM/DD/YY',
-])
+]);
 
 export const convertSheetNames = (data: SheetData[]): SheetNames => {
   const results: SheetNames = [];
@@ -22,7 +22,9 @@ export const convertSheetNames = (data: SheetData[]): SheetNames => {
   }
 
   data.forEach((sheet: SheetData) => {
-    const { properties: { hidden, title } } = sheet;
+    const {
+      properties: { hidden, title },
+    } = sheet;
 
     if (hidden || templateSpreadsheets.has(title)) {
       return;

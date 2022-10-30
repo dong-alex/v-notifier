@@ -21,11 +21,11 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const opt = {
         spreadsheetId: env.GOOGLE_SHEETS_ID,
-        range: `${req.query?.schoolName}!A7:F`
+        range: `${req.query?.schoolName}!A7:F`,
       };
 
       console.log("Attempting to retrieve school sheet values");
-      let response = await sheetsAPI.spreadsheets.values.get(opt);
+      const response = await sheetsAPI.spreadsheets.values.get(opt);
 
       console.log("School sheet values obtained");
       res.status(200).json(response.data.values);

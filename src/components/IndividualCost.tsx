@@ -1,5 +1,5 @@
-import React from 'react';
-import { MoneySymbol, CurrencyDisplay } from "./currencyUtil/currency"
+import React from "react";
+import { MoneySymbol, CurrencyDisplay } from "./currencyUtil/currency";
 
 interface Props {
   unitPrice: string;
@@ -22,4 +22,4 @@ const IndividualCost = ({ unitPrice }: Props) => (
   </div>
 );
 
-export default IndividualCost
+export default IndividualCost;
