@@ -7,16 +7,20 @@ interface Props {
   sentContacts: Set<string>;
 }
 
+const getBackgroundColour = (pendingPay = false, paid = false): string => {
+  if (paid) {
+    return "bg-emerald-100";
+  }
+  return pendingPay ? "bg-indigo-100" : "bg-white";
+}
+
 const GetContactButton = (
   user: User,
   handler: (number: string) => void,
   hasSentMessage: boolean,
 ) => {
   const { name, phone, pendingPay, paid } = user;
-  // TODO: fix ugliest ternaries in history
-  // TODO: change outline colour not bg
-  let backgroundColour = pendingPay ? "bg-pink-300" : "bg-white";
-  backgroundColour = paid ? "bg-green-300" : backgroundColour;
+  const backgroundColour = getBackgroundColour(pendingPay, paid);
   return (
     <button
       className={`w-full py-2.5 px-5 mx-1 my-1 text-sm font-medium focus:outline-none ${backgroundColour} rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}
