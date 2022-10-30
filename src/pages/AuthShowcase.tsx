@@ -12,15 +12,7 @@ import {
 import { Label } from "../components/shared/label";
 import { RecentMessages } from "../components/RecentMessages";
 import { SpreadsheetDropdown } from "../components/spreadsheet/SpreadsheetDropdown";
-
-// TODO: move shared types out
-export interface User {
-  name: string;
-  phone: string;
-  pendingPay?: boolean | null;
-  paid?: boolean | null;
-  row?: string | null;
-}
+import { User } from "types/user";
 
 const TEST_RECIPIENT = "780-850-8369";
 
@@ -148,9 +140,10 @@ const AuthShowcase: React.FC = () => {
 
     console.log(schoolData);
     contacts.forEach(({ name, phone }) => {
-      let row = null;
-      let pendingPay = null;
-      let paid = null;
+      let row;
+      let pendingPay;
+      let paid;
+ 
       if (!phone || !name) {
         return;
       }
