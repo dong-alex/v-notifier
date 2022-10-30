@@ -49,6 +49,7 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
   return (
     <div id="spreadsheet-dropdown" className="my-5">
       <SectionHeader name={"Spreadsheet"} />
+      <p>Select a specific booking to match all contacts who attended.</p>
       <select
         id="spreadsheet-name"
         onChange={(e) => handleSchool(e.target.value)}
