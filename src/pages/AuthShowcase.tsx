@@ -11,6 +11,7 @@ import {
 } from "../components/currencyUtil/currency";
 import { Label } from "../components/shared/label";
 import { RecentMessages } from "../components/RecentMessages";
+import { SpreadsheetDropdown } from "../components/spreadsheet/SpreadsheetDropdown";
 
 // TODO: move shared types out
 export interface User {
@@ -38,8 +39,7 @@ const AuthShowcase: React.FC = () => {
   const [sentNumbers, setSentNumbers] = useState<Set<string>>(new Set());
 
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
-  const [showRecentMessages, setShowRecentMessages] = useState<boolean>(false);
-  const [schoolName, setSchoolName] = useState<string>("")
+  const [schoolName, setSchoolName] = useState<string>("");
 
   const [displayToast, setDisplayToast] = useState({
     display: false,
@@ -74,27 +74,17 @@ const AuthShowcase: React.FC = () => {
     enabled: !!valid,
   });
 
-  const {
-    data: sheetsData,
-    isLoading: sheetsDataLoading,
-    error: sheetsDataError,
-  } = trpc.useQuery(["sheets.getSheetData"], {
-    enabled: !!valid,
-  });
-
-  // TODO: use schooldataloading and error 
-  const {
-    data: schoolData,
-    isLoading: schoolDataLoading,
-    error: schoolDataError,
-  } = trpc.useQuery(["sheets.getSchoolData", schoolName], {
-    enabled: !!valid && Boolean(schoolName),
-  });
+  const { data: schoolData } = trpc.useQuery(
+    ["sheets.getSchoolData", schoolName],
+    {
+      enabled: !!valid && !!schoolName,
+    },
+  );
 
   useEffect(() => {
     if (isSuccess) {
       setDisplayToast({ display: true, countSent: checkedPhoneNumbers.size });
-      handleContactSent()
+      handleContactSent();
       setTimeout(
         () =>
           setDisplayToast({
@@ -106,12 +96,6 @@ const AuthShowcase: React.FC = () => {
       handleClearAll();
     }
   }, [isSuccess]);
-
-  const numbers = React.useMemo(() => {
-    const output = Array.from(checkedPhoneNumbers);
-
-    return output.join(" ");
-  }, [checkedPhoneNumbers]);
 
   const filteredContacts: User[] = React.useMemo(() => {
     if (!contacts) {
@@ -196,10 +180,6 @@ const AuthShowcase: React.FC = () => {
     [unitPrice],
   );
 
-  const handleSchool = (school: string) => {
-    setSchoolName(school)
-  };
-
   const onSubmit = React.useCallback(async () => {
     if (!textareaRef.current) {
       return;
@@ -249,18 +229,19 @@ const AuthShowcase: React.FC = () => {
   );
 
   const handleContactSent = React.useCallback(() => {
-      setSentNumbers(
-        new Set([...Array.from(checkedPhoneNumbers), ...Array.from(sentNumbers)]) as Set<string>,
-      );
-    },
-    [sentNumbers, checkedPhoneNumbers],
-  );
+    setSentNumbers(
+      new Set([
+        ...Array.from(checkedPhoneNumbers),
+        ...Array.from(sentNumbers),
+      ]) as Set<string>,
+    );
+  }, [sentNumbers, checkedPhoneNumbers]);
 
   if (!sessionData) {
     return null;
   }
 
-  if (isLoading || sheetsDataLoading) {
+  if (isLoading) {
     return <div>Loading contacts ...</div>;
   }
 
@@ -269,79 +250,69 @@ const AuthShowcase: React.FC = () => {
   }
 
   return (
-    <div className="flex">
-      {/* TODO: clean  up dropdown */}
-      <div id="spreadsheet-dropdown" className="my-5">
-          <Label id="spreadsheet-name" title="Spreadsheet Name" />
-          <select
-            id="spreadsheet-name"
-            onChange={(e) => handleSchool(e.target.value)}
-            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          >
-            <option selected disabled>
-              Choose a spreadsheet
-            </option>
-            {sheetsData && sheetsData.map((sheetSchool: string, i: number) => {
-              return(
-              <option value={sheetSchool} key={i}>
-                {sheetSchool}
-              </option>
-            )})}
-          </select>
-        </div>
-      <ContactSection
-        name="Contacts"
-        contactArray={filteredContacts}
-        contactHandler={handleContactAdd}
-        sentContacts={sentNumbers}
-      />
-      <form onSubmit={handleSubmit(onSubmit)} className="mr-4 w-80">
-        <SectionHeader name="Payment" />
-        <div className="mt-5">
-          <Label id="price" title="Price" />
-          <div className="relative mt-1 rounded-md shadow-sm">
-            <MoneySymbol />
-            <input
-              type="number"
-              step="0.01"
-              id="price"
-              className="block w-full rounded-md border-gray-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="0.00"
-              pattern="^\d*(\.\d{0,2})?$"
-              {...register("total-price")}
-            />
-            <CurrencyDisplay />
+    <div className="flex flex-col">
+      <section className="flex w-full">
+        <SpreadsheetDropdown
+          school={schoolName}
+          onSchoolChange={(s: string) => {
+            setSchoolName(s);
+          }}
+        />
+      </section>
+      <section className="flex">
+        <ContactSection
+          name="Contacts"
+          contactArray={filteredContacts}
+          contactHandler={handleContactAdd}
+          sentContacts={sentNumbers}
+        />
+        <form onSubmit={handleSubmit(onSubmit)} className="mr-4 w-80">
+          <SectionHeader name="Payment" />
+          <div className="mt-5">
+            <Label id="price" title="Price" />
+            <div className="relative mt-1 rounded-md shadow-sm">
+              <MoneySymbol />
+              <input
+                type="number"
+                step="0.01"
+                id="price"
+                className="block w-full rounded-md border-gray-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="0.00"
+                pattern="^\d*(\.\d{0,2})?$"
+                {...register("total-price")}
+              />
+              <CurrencyDisplay />
+            </div>
           </div>
-        </div>
-        <div className="my-5">
-          <Label
-            id="price"
-            title={`Individual price for ${checkedPhoneNumbers.size} persons`}
-          />
-          <IndividualCost unitPrice={unitPrice} />
-        </div>
-        <div id="etransfer-dropdown" className="my-5">
-          <Label id="etransfer-email" title="E-transfer email" />
-          <select
-            id="etransfer-email"
-            onChange={(e) => hoverEmail(e.target.value)}
-            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          >
-            <option selected disabled>
-              Choose an email
-            </option>
-            {Array.from(AUTHORIZED_USERS).map((email: string, i) => (
-              <option value={email} key={i}>
-                {email}
+          <div className="my-5">
+            <Label
+              id="price"
+              title={`Individual price for ${checkedPhoneNumbers.size} persons`}
+            />
+            <IndividualCost unitPrice={unitPrice} />
+          </div>
+          <div id="etransfer-dropdown" className="my-5">
+            <Label id="etransfer-email" title="E-transfer email" />
+            <select
+              id="etransfer-email"
+              onChange={(e) => hoverEmail(e.target.value)}
+              className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            >
+              <option selected disabled>
+                Choose an email
               </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col">
-          <div className="mb-3">
-            <Label id="text-message" title="Text Message" />
-            <textarea
-              className="
+              {Array.from(AUTHORIZED_USERS).map((email: string, i) => (
+                <option value={email} key={i}>
+                  {email}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <div className="mb-3">
+              <Label id="text-message" title="Text Message" />
+              <textarea
+                className="
           form-control
           block
           w-full
@@ -358,73 +329,70 @@ const AuthShowcase: React.FC = () => {
           m-0
           focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
         "
-              id="exampleFormControlTextarea1"
-              rows={3}
-              ref={textareaRef}
-              defaultValue={messagePlaceholder}
-            />
-          </div>
-          <div className="flex">
-            <input
-              type={"checkbox"}
-              checked={useTestNumber}
-              onChange={() => {
-                setUseTestNumber(!useTestNumber);
-              }}
-              className="mr-2"
-            />
-            <span className="leading-none">
-              Use Test Number: {TEST_RECIPIENT}
-            </span>
-          </div>
-        </div>
-        <button
-          className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full"
-          type="submit"
-        >
-          Send
-        </button>
-        {displayToast.display && (
-          <div
-            id="toast-bottom-left"
-            className="flex absolute bottom-5 left-5 items-center p-4 space-x-4 w-full max-w-xs text-gray-500 bg-white rounded-lg divide-x divide-gray-200 shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800"
-            role="alert"
-          >
-            <div className="inline-flex flex-shrink-0 justify-center items-center w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-              <svg
-                aria-hidden="true"
-                className="w-5 h-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-              <span className="sr-only">Check icon</span>
+                id="exampleFormControlTextarea1"
+                rows={3}
+                ref={textareaRef}
+                defaultValue={messagePlaceholder}
+              />
             </div>
-            <span className="text-sm font-normal">{`Message sent successfully to ${displayToast.countSent} persons`}</span>
+            <div className="flex">
+              <input
+                type={"checkbox"}
+                checked={useTestNumber}
+                onChange={() => {
+                  setUseTestNumber(!useTestNumber);
+                }}
+                className="mr-2"
+              />
+              <span className="leading-none">
+                Use Test Number: {TEST_RECIPIENT}
+              </span>
+            </div>
           </div>
+          <button
+            className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full"
+            type="submit"
+          >
+            Send
+          </button>
+          {displayToast.display && (
+            <div
+              id="toast-bottom-left"
+              className="flex absolute bottom-5 left-5 items-center p-4 space-x-4 w-full max-w-xs text-gray-500 bg-white rounded-lg divide-x divide-gray-200 shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800"
+              role="alert"
+            >
+              <div className="inline-flex flex-shrink-0 justify-center items-center w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
+                <svg
+                  aria-hidden="true"
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+                <span className="sr-only">Check icon</span>
+              </div>
+              <span className="text-sm font-normal">{`Message sent successfully to ${displayToast.countSent} persons`}</span>
+            </div>
+          )}
+        </form>
+        {sendMessageError && (
+          <span>An error has occurred when attempting to send the message</span>
         )}
-      </form>
-      {sendMessageError && (
-        <span>An error has occurred when attempting to send the message</span>
-      )}
-      <ContactSection
-        name="Recipients"
-        contactArray={selectedContacts}
-        contactHandler={handleContactRemove}
-        clearAllHandler={handleClearAll}
-        sentContacts={sentNumbers}
-      />
-      <button type="button" className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-        onClick={() => setShowRecentMessages(!showRecentMessages)}>
-        {showRecentMessages ? "Hide Messages" : "Show Messages"}
-      </button>
-      {showRecentMessages && <RecentMessages />}
+        <ContactSection
+          name="Recipients"
+          contactArray={selectedContacts}
+          contactHandler={handleContactRemove}
+          clearAllHandler={handleClearAll}
+          sentContacts={sentNumbers}
+        />
+        <RecentMessages />
+      </section>
     </div>
   );
 };
