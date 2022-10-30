@@ -1,7 +1,7 @@
 import React from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "../../utils/trpc";
-import { Label } from "../shared/label";
+import SectionHeader from "../SectionHeader";
 
 interface ISpreadsheetDropdown {
   school: string;
@@ -21,6 +21,9 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
     ["sheets.getSheetData"],
     {
       enabled: !!valid,
+      select: (response): string[] => {
+        return response.map(({ title }) => title);
+      },
     },
   );
 
@@ -48,7 +51,9 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
   }
 
   return (
-    <div id="spreadsheet-dropdown" className="mb-5">
+    <div id="spreadsheet-dropdown" className="my-5">
+      <SectionHeader name={"Spreadsheet"} />
+      <p>Select a specific booking to match all contacts who attended.</p>
       <select
         id="spreadsheet-name"
         onChange={(e) => handleSchool(e.target.value)}

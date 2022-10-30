@@ -27,8 +27,14 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
       console.log("Attempting to retrieve school sheet values");
       const response = await sheetsAPI.spreadsheets.values.get(opt);
 
-      console.log("School sheet values obtained");
-      res.status(200).json(response.data.values);
+      // initial row
+      let row = 7;
+
+      const r = response.data.values?.map((v) => {
+        return [row++, ...v];
+      });
+
+      res.status(200).json(r);
 
       return;
     });
