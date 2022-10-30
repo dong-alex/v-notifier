@@ -16,8 +16,8 @@ import { RecentMessages } from "../components/RecentMessages";
 export interface User {
   name: string;
   phone: string;
-  pendingPay?: boolean;
-  paid?: boolean;
+  pendingPay?: boolean | null;
+  paid?: boolean | null;
 }
 
 const TEST_RECIPIENT: string = "780-850-8369";
@@ -132,8 +132,11 @@ const AuthShowcase: React.FC = () => {
         if (!attendance.has(name)) {
           return;
         }
-        pendingPay = paymentData[name].pendingPay;
-        paid = paymentData[name].paid;
+
+        if (paymentData) {
+          pendingPay = paymentData[name]?.pendingPay;
+          paid = paymentData[name]?.paid;
+        }
       }
 
       if (!checkedPhoneNumbers.has(phone)) {
@@ -193,11 +196,9 @@ const AuthShowcase: React.FC = () => {
     [unitPrice],
   );
 
-  const handleSchool = React.useCallback(
-    (school: string) => {
-      setSchoolName(school)
-    },
-  );
+  const handleSchool = (school: string) => {
+    setSchoolName(school)
+  };
 
   const onSubmit = React.useCallback(async () => {
     if (!textareaRef.current) {
@@ -280,10 +281,10 @@ const AuthShowcase: React.FC = () => {
             <option selected disabled>
               Choose a spreadsheet
             </option>
-            {sheetsData && sheetsData.map((sheet: unknown, i: number) => {
+            {sheetsData && sheetsData.map((sheetSchool: string, i: number) => {
               return(
-              <option value={sheet} key={i}>
-                {sheet}
+              <option value={sheetSchool} key={i}>
+                {sheetSchool}
               </option>
             )})}
           </select>

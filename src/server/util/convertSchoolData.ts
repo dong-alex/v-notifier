@@ -14,7 +14,7 @@ interface SchoolDatum {
   }
 }
 
-const convertStringToBoolean = (boolString: string) => {
+const convertStringToBoolean = (boolString: string = "FALSE") => {
   return boolString === "TRUE" ? true : false
 }
 
@@ -34,12 +34,14 @@ export const convertSchoolData = (data: Array<string[]>): [SchoolDatum, Set<stri
       return;
     }
 
-    attendingSet.add(name)
+    if (name) {
+      attendingSet.add(name)
 
-    results[name] = {
-      pendingPay: convertStringToBoolean(pendingPay),
-      paid: convertStringToBoolean(paid),
-    };
+      results[name] = {
+        pendingPay: convertStringToBoolean(pendingPay),
+        paid: convertStringToBoolean(paid),
+      };
+    }
   });
 
   return [results, attendingSet];
