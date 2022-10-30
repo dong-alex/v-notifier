@@ -98,8 +98,8 @@ const AuthShowcase: React.FC = () => {
     const result: User[] = [];
 
     contacts.forEach(({ name, phone }) => {
-      let pendingPay = null;
-      let paid = null;
+      let pendingPay;
+      let paid;
       if (!phone || !name) {
         return;
       }
