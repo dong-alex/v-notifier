@@ -14,6 +14,7 @@ import { RecentMessages } from "@components/RecentMessages";
 import { SpreadsheetDropdown } from "@components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
 import { useContacts } from "@components/hooks/useContacts";
+import { useSpreadsheets } from "@components/hooks/useSpreadsheets";
 
 const TEST_RECIPIENT = "780-850-8369";
 
@@ -31,7 +32,6 @@ const AuthShowcase: React.FC = () => {
   >(new Set());
 
   const [sentNumbers, setSentNumbers] = useState<Set<string>>(new Set());
-  const [pendingRows, setPendingRows] = useState<Set<number>>(new Set());
 
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [schoolName, setSchoolName] = useState<string>("");
@@ -51,7 +51,9 @@ const AuthShowcase: React.FC = () => {
 
   const totalPrice = watch("total-price") as string;
 
-  const { mutateAsync: setPendingPay } = trpc.useMutation([
+  const { spreadsheets } = useSpreadsheets();
+
+  const { mutateAsync: mutatePending } = trpc.useMutation([
     "sheets.setPendingPay",
   ]);
 
@@ -59,7 +61,31 @@ const AuthShowcase: React.FC = () => {
     mutate,
     error: sendMessageError,
     isSuccess,
-  } = trpc.useMutation(["messages.send"]);
+  } = trpc.useMutation(["messages.send"], {
+    async onSuccess() {
+      // set pending pay for the checked values
+      const rows: string[] = [];
+
+      selectedContacts.forEach((sc) => {
+        if (!sc.row) {
+          return;
+        }
+
+        rows.push(sc.row);
+      });
+
+      if (!spreadsheetId) {
+        return;
+      }
+
+      await mutatePending({
+        sheetId: spreadsheetId,
+        rows: JSON.stringify(rows),
+      });
+
+      handleClearAll();
+    },
+  });
 
   useEffect(() => {
     if (isSuccess) {
@@ -73,9 +99,12 @@ const AuthShowcase: React.FC = () => {
           }),
         8000,
       );
-      handleClearAll();
     }
   }, [isSuccess]);
+
+  const spreadsheetId = React.useMemo(() => {
+    return spreadsheets.find((s) => s.title === schoolName)?.sheetId;
+  }, [spreadsheets, schoolName]);
 
   const filteredContacts: User[] = React.useMemo(() => {
     return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone));
@@ -128,7 +157,6 @@ const AuthShowcase: React.FC = () => {
 
   const handleClearAll = () => {
     setCheckedPhoneNumbers(new Set());
-    setPendingRows(new Set());
   };
 
   const handleContactRemove = React.useCallback(

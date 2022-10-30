@@ -39,6 +39,7 @@ export const useContacts = (schoolName: string): IUseContacts => {
     const result: User[] = [];
 
     contactsData.forEach(({ name, phone }) => {
+      let row;
       let pendingPay;
       let paid;
 
@@ -55,6 +56,7 @@ export const useContacts = (schoolName: string): IUseContacts => {
         if (paymentData) {
           pendingPay = paymentData[name]?.pendingPay;
           paid = paymentData[name]?.paid;
+          row = paymentData[name]?.row;
         }
       }
 
@@ -63,6 +65,7 @@ export const useContacts = (schoolName: string): IUseContacts => {
         phone,
         pendingPay,
         paid,
+        row,
       });
     });
 

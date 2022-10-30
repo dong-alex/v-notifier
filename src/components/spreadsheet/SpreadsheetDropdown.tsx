@@ -1,7 +1,6 @@
 import React from "react";
-import { useSession } from "next-auth/react";
-import { trpc } from "../../utils/trpc";
 import SectionHeader from "../SectionHeader";
+import { useSpreadsheets } from "@components/hooks/useSpreadsheets";
 
 interface ISpreadsheetDropdown {
   school: string;
@@ -11,41 +10,23 @@ interface ISpreadsheetDropdown {
 export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
   onSchoolChange,
 }) => {
-  const { data: sessionData } = useSession();
-
-  const { data: valid } = trpc.useQuery(["checks.validUser"], {
-    enabled: !!sessionData?.user,
-  });
-
-  const { data: sheetsData, isLoading: sheetsDataLoading } = trpc.useQuery(
-    ["sheets.getSheetData"],
-    {
-      enabled: !!valid,
-      select: (response): string[] => {
-        return response.map(({ title }) => title);
-      },
-    },
-  );
+  const { spreadsheets, loading } = useSpreadsheets();
 
   const options = React.useMemo(() => {
-    if (!sheetsData) {
+    if (!spreadsheets) {
       return [];
     }
 
-    return sheetsData.map((sheetSchool: string, i: number) => {
+    return spreadsheets.map(({ title }, i: number) => {
       return (
-        <option value={sheetSchool} key={i}>
-          {sheetSchool}
+        <option value={title} key={i}>
+          {title}
         </option>
       );
     });
-  }, [sheetsData]);
+  }, [spreadsheets]);
 
-  const handleSchool = (s: string) => {
-    onSchoolChange(s);
-  };
-
-  if (sheetsDataLoading) {
+  if (loading) {
     // TODO: update loader to be cute
     return <div>Loading school names ...</div>;
   }
@@ -56,7 +37,7 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
       <p>Select a specific booking to match all contacts who attended.</p>
       <select
         id="spreadsheet-name"
-        onChange={(e) => handleSchool(e.target.value)}
+        onChange={(e) => onSchoolChange(e.target.value)}
         className="w-64 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       >
         <option selected>No school selected</option>
