@@ -20,6 +20,13 @@ export const sheetsRouter = createProtectedRouter()
     },
   })
   .query("getSheetData", {
+    // should match the typing specified in the api
+    output: z.array(
+      z.object({
+        sheetId: z.string(),
+        title: z.string(),
+      }),
+    ),
     resolve: async () => {
       try {
         const response = await fetch(`${getBaseUrl()}/api/sheet-data`);
@@ -33,6 +40,7 @@ export const sheetsRouter = createProtectedRouter()
   })
   .query("getSchoolData", {
     input: z.string(),
+    // should match the typing specified in the api
     resolve: async ({ input }: { input: string }) => {
       try {
         const response = await fetch(

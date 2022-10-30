@@ -11,8 +11,6 @@ const setPendingPay = (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const { row, name } = req.query;
 
-    const cell = `${PENDING_PAY_COLUMN_ID}${row}`;
-
     const client = new google.auth.JWT(
       env.SHEETS_READER_ID,
       undefined,
@@ -29,38 +27,40 @@ const setPendingPay = (req: NextApiRequest, res: NextApiResponse) => {
       const sheetsAPI = google.sheets({ version: "v4", auth: client });
 
       console.log("Attempting to set pending pay cell");
+
+      // todo: construct array of requests per message sent
+      const req = {
+        updateCells: {
+          rows: [
+            {
+              values: [
+                {
+                  dataValidation: {
+                    condition: {
+                      type: "BOOLEAN",
+                    },
+                  },
+                  userEnteredValue: {
+                    boolValue: true,
+                  },
+                },
+              ],
+            },
+          ],
+          fields: "userEnteredValue",
+          start: {
+            rowIndex: 7, // inclusive
+            columnIndex: 4, // exclusive
+            sheetId: 1008040339, // st jeanne darc 10/28/22
+          },
+        },
+      };
+
       // todo: update all at once with all users that have been set
       await sheetsAPI.spreadsheets.batchUpdate({
         spreadsheetId: env.GOOGLE_SHEETS_ID,
         requestBody: {
-          requests: [
-            {
-              updateCells: {
-                rows: [
-                  {
-                    values: [
-                      {
-                        dataValidation: {
-                          condition: {
-                            type: "BOOLEAN",
-                          },
-                        },
-                        userEnteredValue: {
-                          boolValue: true,
-                        },
-                      },
-                    ],
-                  },
-                ],
-                fields: "userEnteredValue",
-                start: {
-                  rowIndex: 7, // inclusive
-                  columnIndex: 4, // exclusive
-                  sheetId: 1008040339, // st jeanne darc 10/28/22
-                },
-              },
-            },
-          ],
+          requests: [req],
         },
       });
 

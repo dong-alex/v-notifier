@@ -21,6 +21,9 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
     ["sheets.getSheetData"],
     {
       enabled: !!valid,
+      select: (response): string[] => {
+        return response.map(({ title }) => title);
+      },
     },
   );
 
