@@ -1,12 +1,10 @@
 interface SheetData {
   properties: {
+    sheetId: string;
     hidden: boolean;
     title: string;
   };
 }
-
-type SheetName = string;
-type SheetNames = Array<SheetName>;
 
 const templateSpreadsheets = new Set([
   "Fall Schedule",
@@ -14,8 +12,8 @@ const templateSpreadsheets = new Set([
   '"Template" MM/DD/YY',
 ]);
 
-export const convertSheetNames = (data: SheetData[]): SheetNames => {
-  const results: SheetNames = [];
+export const convertSheetNames = (data: SheetData[]) => {
+  const results: any[] = [];
 
   if (!data || data?.length < 1) {
     return [];
@@ -23,14 +21,17 @@ export const convertSheetNames = (data: SheetData[]): SheetNames => {
 
   data.forEach((sheet: SheetData) => {
     const {
-      properties: { hidden, title },
+      properties: { hidden, title, sheetId },
     } = sheet;
 
     if (hidden || templateSpreadsheets.has(title)) {
       return;
     }
 
-    results.push(title);
+    results.push({
+      title,
+      sheetId: String(sheetId),
+    });
   });
 
   return results;

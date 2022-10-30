@@ -6,7 +6,7 @@ interface Props {
 
 const SectionHeader = ({ name }: Props) => {
   return (
-    <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700">
+    <h3 className="text-5xl md:text-[2rem] font-extrabold text-gray-700 mb-5">
       <span className="text-violet-500">{name[0]}</span>
       {name.slice(1)}
     </h3>

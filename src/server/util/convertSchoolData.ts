@@ -9,6 +9,7 @@ interface SchoolData {
 
 interface SchoolDatum {
   [name: string]: {
+    row: string;
     pendingPay: boolean;
     paid: boolean;
   };
@@ -30,7 +31,15 @@ export const convertSchoolData = (
   }
 
   data.forEach((row: string[]) => {
-    const [name, , attending, , pendingPay, paid] = row;
+    const [
+      rowNumber,
+      name,
+      ,
+      attending,
+      ,
+      pendingPay,
+      paid,
+    ] = row;
 
     if (!convertStringToBoolean(attending)) {
       return;
@@ -40,6 +49,7 @@ export const convertSchoolData = (
       attendingSet.add(name);
 
       results[name] = {
+        row: rowNumber ?? "no row",
         pendingPay: convertStringToBoolean(pendingPay),
         paid: convertStringToBoolean(paid),
       };

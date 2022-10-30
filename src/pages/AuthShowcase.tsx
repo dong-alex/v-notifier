@@ -54,11 +54,52 @@ const AuthShowcase: React.FC = () => {
     enabled: !!sessionData?.user,
   });
 
+  const { mutateAsync: setPendingPay } = trpc.useMutation([
+    "sheets.setPendingPay",
+  ]);
+
+  // mutation that is sent per contact - not batched
   const {
     mutate,
     error: sendMessageError,
     isSuccess,
-  } = trpc.useMutation(["messages.send"]);
+  } = trpc.useMutation(["messages.send"], {
+    onMutate({ phone }) {
+      return {
+        numbers: phone,
+      };
+    },
+    async onSuccess(data, variables, context) {
+      console.log(data, variables, context);
+
+      // only one number should have been sent via twilio api
+      const sentNumber = JSON.parse(variables.phone).pop();
+
+      // for each sucessfully sent message - update the pending pay column
+
+      const contact = filteredContacts?.find(
+        ({ phone }) => phone === sentNumber,
+      );
+
+      if (!contact) {
+        return;
+      }
+
+      console.log("found sent user", contact);
+
+      if (!contact.row) {
+        console.error(
+          "can not edit pending pay column without a specified row for the contact",
+        );
+        return;
+      }
+
+      const response = await setPendingPay({
+        name: contact.name,
+        row: String(contact.row),
+      });
+    },
+  });
 
   const {
     data: contacts,
@@ -98,9 +139,12 @@ const AuthShowcase: React.FC = () => {
 
     const result: User[] = [];
 
+    console.log(schoolData);
     contacts.forEach(({ name, phone }) => {
+      let row;
       let pendingPay;
       let paid;
+ 
       if (!phone || !name) {
         return;
       }
@@ -112,23 +156,23 @@ const AuthShowcase: React.FC = () => {
         }
 
         if (paymentData) {
+          row = paymentData[name]?.row;
           pendingPay = paymentData[name]?.pendingPay;
           paid = paymentData[name]?.paid;
         }
       }
 
-      if (!checkedPhoneNumbers.has(phone)) {
-        result.push({
-          name,
-          phone,
-          pendingPay,
-          paid,
-        });
-      }
+      result.push({
+        name,
+        phone,
+        pendingPay,
+        paid,
+        row,
+      });
     });
 
     return result;
-  }, [contacts, checkedPhoneNumbers, schoolData]);
+  }, [contacts, schoolData]);
 
   const selectedContacts: User[] = React.useMemo(() => {
     if (!contacts) {

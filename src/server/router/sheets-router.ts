@@ -20,6 +20,13 @@ export const sheetsRouter = createProtectedRouter()
     },
   })
   .query("getSheetData", {
+    // should match the typing specified in the api
+    output: z.array(
+      z.object({
+        sheetId: z.string(),
+        title: z.string(),
+      }),
+    ),
     resolve: async () => {
       try {
         const response = await fetch(`${getBaseUrl()}/api/sheet-data`);
@@ -33,6 +40,7 @@ export const sheetsRouter = createProtectedRouter()
   })
   .query("getSchoolData", {
     input: z.string(),
+    // should match the typing specified in the api
     resolve: async ({ input }: { input: string }) => {
       try {
         const response = await fetch(
@@ -43,6 +51,28 @@ export const sheetsRouter = createProtectedRouter()
         return convertSchoolData(data);
       } catch (err) {
         throw `Error trying to getSchoolData: ${err}`;
+      }
+    },
+  })
+  .mutation("setPendingPay", {
+    input: z.object({
+      name: z.string(),
+      row: z.string(),
+    }),
+    resolve: async ({ input }) => {
+      try {
+        const { name, row } = input;
+
+        // todo: handle proper method for pending pay if more endpoints required to edit sheet
+        const response = await fetch(
+          `${getBaseUrl()}/api/sheet-data/${name}/${row}`,
+        );
+
+        const data = await response.json();
+
+        return data;
+      } catch (err) {
+        throw `Error trying to set pending payment: ${err}`;
       }
     },
   });
