@@ -21,7 +21,7 @@ export interface User {
   paid?: boolean | null;
 }
 
-const TEST_RECIPIENT: string = "780-850-8369";
+const TEST_RECIPIENT = "780-850-8369";
 
 const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
@@ -185,7 +185,7 @@ const AuthShowcase: React.FC = () => {
       return;
     }
 
-    let refactoredMessage = textareaRef.current.value.replace(
+    const refactoredMessage = textareaRef.current.value.replace(
       "{unit-price}",
       unitPrice,
     );

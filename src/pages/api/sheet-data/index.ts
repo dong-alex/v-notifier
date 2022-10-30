@@ -20,7 +20,7 @@ const getSheetData = async (req: NextApiRequest, res: NextApiResponse) => {
       const sheetsAPI = google.sheets({ version: "v4", auth: client });
 
       console.log("Attempting to retrieve sheet data");
-      let response = await sheetsAPI.spreadsheets.get({ 
+      const response = await sheetsAPI.spreadsheets.get({
         spreadsheetId: env.GOOGLE_SHEETS_ID,
       });
 

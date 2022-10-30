@@ -1,7 +1,7 @@
-import React from 'react';
-import SectionHeader from "../SectionHeader"
-import ContactList from "../contacts/ContactList"
-import { User } from '../../pages/AuthShowcase';
+import React from "react";
+import SectionHeader from "../SectionHeader";
+import ContactList from "../contacts/ContactList";
+import { User } from "../../pages/AuthShowcase";
 
 interface Props {
   name: string;
@@ -11,24 +11,34 @@ interface Props {
   sentContacts: Set<string>;
 }
 
-const ContactSection = ({ name, contactArray, contactHandler, clearAllHandler, sentContacts }: Props) => {
+const ContactSection = ({
+  name,
+  contactArray,
+  contactHandler,
+  clearAllHandler,
+  sentContacts,
+}: Props) => {
   return (
     <section id={name} className="w-96">
       <SectionHeader name={name} />
-      <ContactList contactArray={contactArray} contactHandler={contactHandler} sentContacts={sentContacts} />
-      {(clearAllHandler && contactArray.length > 0) &&
+      <ContactList
+        contactArray={contactArray}
+        contactHandler={contactHandler}
+        sentContacts={sentContacts}
+      />
+      {clearAllHandler && contactArray.length > 0 && (
         <div className="flex justify-end mr-8">
-          <button 
+          <button
             type="button"
-            onClick={() => clearAllHandler()} 
+            onClick={() => clearAllHandler()}
             className="text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
           >
             Clear all
           </button>
         </div>
-      }
+      )}
     </section>
-  )
+  );
 };
 
-export default ContactSection
+export default ContactSection;
