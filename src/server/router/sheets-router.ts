@@ -56,16 +56,24 @@ export const sheetsRouter = createProtectedRouter()
   })
   .mutation("setPendingPay", {
     input: z.object({
-      name: z.string(),
-      row: z.string(),
+      rows: z.string(), // all row numbers to set the pending pay to 'true'
+      sheetId: z.string(), // sheet id for the specific booking
     }),
     resolve: async ({ input }) => {
       try {
-        const { name, row } = input;
+        const { rows, sheetId } = input;
 
         // todo: handle proper method for pending pay if more endpoints required to edit sheet
         const response = await fetch(
-          `${getBaseUrl()}/api/sheet-data/${name}/${row}`,
+          `${getBaseUrl()}/api/sheet-data/pending-pay`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              rows,
+              sheetId,
+            }),
+          },
         );
 
         const data = await response.json();
