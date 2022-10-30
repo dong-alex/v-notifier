@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import spreadsheetConfig from "../../../config/spreadsheet";
 import { NextApiRequest, NextApiResponse } from "next";
 import { env } from "../../../env/server.mjs";
 
@@ -27,8 +28,8 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
       console.log("Attempting to retrieve school sheet values");
       const response = await sheetsAPI.spreadsheets.values.get(opt);
 
-      // initial row
-      let row = 7;
+      // initial row (header)
+      let row = spreadsheetConfig.INITIAL_ROW;
 
       const r = response.data.values?.map((v) => {
         return [row++, ...v];

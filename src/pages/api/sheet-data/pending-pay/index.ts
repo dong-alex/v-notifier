@@ -2,11 +2,7 @@ import { NextApiResponse, NextApiRequest } from "next";
 import { google, sheets_v4 } from "googleapis";
 import { env } from "../../../../env/server.mjs";
 
-// todo: pull all of the sheet config into one file and adjust on per sheet basis if required
-const PENDING_PAY_COLUMN_ID = "E";
-
 const setPendingPay = (req: NextApiRequest, res: NextApiResponse) => {
-  console.log("looking at query values", req.query);
   const { rows, sheetId } = req.body;
 
   // parse all rows requiring pending pay
