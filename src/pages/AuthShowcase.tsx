@@ -13,6 +13,7 @@ import { Label } from "@components/shared/label";
 import { RecentMessages } from "@components/RecentMessages";
 import { SpreadsheetDropdown } from "@components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
+import { useContacts } from "@components/hooks/useContacts";
 
 const TEST_RECIPIENT = "780-850-8369";
 
@@ -30,9 +31,12 @@ const AuthShowcase: React.FC = () => {
   >(new Set());
 
   const [sentNumbers, setSentNumbers] = useState<Set<string>>(new Set());
+  const [pendingRows, setPendingRows] = useState<Set<number>>(new Set());
 
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [schoolName, setSchoolName] = useState<string>("");
+
+  const { contacts } = useContacts(schoolName);
 
   const [displayToast, setDisplayToast] = useState({
     display: false,
@@ -47,32 +51,15 @@ const AuthShowcase: React.FC = () => {
 
   const totalPrice = watch("total-price") as string;
 
-  const { data: sessionData } = useSession();
-
-  const { data: valid } = trpc.useQuery(["checks.validUser"], {
-    enabled: !!sessionData?.user,
-  });
+  const { mutateAsync: setPendingPay } = trpc.useMutation([
+    "sheets.setPendingPay",
+  ]);
 
   const {
     mutate,
     error: sendMessageError,
     isSuccess,
   } = trpc.useMutation(["messages.send"]);
-
-  const {
-    data: contacts,
-    isLoading,
-    error,
-  } = trpc.useQuery(["sheets.getContacts"], {
-    enabled: !!valid,
-  });
-
-  const { data: schoolData } = trpc.useQuery(
-    ["sheets.getSchoolData", schoolName],
-    {
-      enabled: !!valid && !!schoolName,
-    },
-  );
 
   useEffect(() => {
     if (isSuccess) {
@@ -91,66 +78,11 @@ const AuthShowcase: React.FC = () => {
   }, [isSuccess]);
 
   const filteredContacts: User[] = React.useMemo(() => {
-    if (!contacts) {
-      return [];
-    }
-
-    const result: User[] = [];
-
-    contacts.forEach(({ name, phone }) => {
-      let pendingPay;
-      let paid;
-
-      if (!phone || !name) {
-        return;
-      }
-
-      if (schoolData) {
-        const [paymentData, attendance] = schoolData;
-        if (!attendance.has(name)) {
-          return;
-        }
-
-        if (paymentData) {
-          pendingPay = paymentData[name]?.pendingPay;
-          paid = paymentData[name]?.paid;
-        }
-      }
-
-      if (!checkedPhoneNumbers.has(phone)) {
-        result.push({
-          name,
-          phone,
-          pendingPay,
-          paid,
-        });
-      }
-    });
-
-    return result;
-  }, [contacts, checkedPhoneNumbers, schoolData]);
+    return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone));
+  }, [contacts, checkedPhoneNumbers]);
 
   const selectedContacts: User[] = React.useMemo(() => {
-    if (!contacts) {
-      return [];
-    }
-
-    const result: User[] = [];
-
-    contacts.forEach(({ name, phone }) => {
-      if (!phone || !name) {
-        return;
-      }
-
-      if (checkedPhoneNumbers.has(phone)) {
-        result.push({
-          name,
-          phone,
-        });
-      }
-    });
-
-    return result;
+    return contacts.filter((c) => checkedPhoneNumbers.has(c.phone));
   }, [contacts, checkedPhoneNumbers]);
 
   const unitPrice: string = React.useMemo(() => {
@@ -196,6 +128,7 @@ const AuthShowcase: React.FC = () => {
 
   const handleClearAll = () => {
     setCheckedPhoneNumbers(new Set());
+    setPendingRows(new Set());
   };
 
   const handleContactRemove = React.useCallback(
@@ -230,18 +163,6 @@ const AuthShowcase: React.FC = () => {
       ]) as Set<string>,
     );
   }, [sentNumbers, checkedPhoneNumbers]);
-
-  if (!sessionData) {
-    return null;
-  }
-
-  if (isLoading) {
-    return <div>Loading contacts ...</div>;
-  }
-
-  if (error) {
-    return <div>Some error occurred {error.message}</div>;
-  }
 
   return (
     <div className="flex flex-col">
