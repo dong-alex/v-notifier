@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
-import SectionHeader from "../components/SectionHeader";
-import ContactSection from "../components/contacts/ContactSection";
-import IndividualCost from "../components/IndividualCost";
-import {
-  MoneySymbol,
-  CurrencyDisplay,
-} from "../components/currencyUtil/currency";
-import { Label } from "../components/shared/label";
-import { RecentMessages } from "../components/RecentMessages";
-import { SpreadsheetDropdown } from "../components/spreadsheet/SpreadsheetDropdown";
+import SectionHeader from "components/SectionHeader";
+import ContactSection from "components/contacts/ContactSection";
+import IndividualCost from "components/IndividualCost";
+import { MoneySymbol, CurrencyDisplay } from "components/currencyUtil/currency";
+import { Label } from "components/shared/label";
+import { RecentMessages } from "components/RecentMessages";
+import { SpreadsheetDropdown } from "components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
+import { useContacts } from "components/hooks/useContacts";
+import { useSpreadsheets } from "components/hooks/useSpreadsheets";
 import SentMessageToast from "components/toast/SentMessageToast";
 import {
   TestNumberCheckbox,
@@ -36,6 +34,8 @@ const AuthShowcase: React.FC = () => {
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [schoolName, setSchoolName] = useState<string>("");
 
+  const { contacts } = useContacts(schoolName);
+
   const [displayToast, setDisplayToast] = useState({
     display: false,
     countSent: 0,
@@ -49,73 +49,41 @@ const AuthShowcase: React.FC = () => {
 
   const totalPrice = watch("total-price") as string;
 
-  const { data: sessionData } = useSession();
+  const { spreadsheets } = useSpreadsheets();
 
-  const { data: valid } = trpc.useQuery(["checks.validUser"], {
-    enabled: !!sessionData?.user,
-  });
-
-  const { mutateAsync: setPendingPay } = trpc.useMutation([
+  const { mutateAsync: mutatePending } = trpc.useMutation([
     "sheets.setPendingPay",
   ]);
 
-  // mutation that is sent per contact - not batched
   const {
     mutate,
     error: sendMessageError,
     isSuccess,
   } = trpc.useMutation(["messages.send"], {
-    onMutate({ phone }) {
-      return {
-        numbers: phone,
-      };
-    },
-    async onSuccess(data, variables, context) {
-      console.log(data, variables, context);
+    async onSuccess() {
+      // set pending pay for the checked values
+      const rows: string[] = [];
 
-      // only one number should have been sent via twilio api
-      const sentNumber = JSON.parse(variables.phone).pop();
+      selectedContacts.forEach((sc) => {
+        if (!sc.row) {
+          return;
+        }
 
-      // for each sucessfully sent message - update the pending pay column
-
-      const contact = filteredContacts?.find(
-        ({ phone }) => phone === sentNumber,
-      );
-
-      if (!contact) {
-        return;
-      }
-
-      console.log("found sent user", contact);
-
-      if (!contact.row) {
-        console.error(
-          "can not edit pending pay column without a specified row for the contact",
-        );
-        return;
-      }
-
-      const response = await setPendingPay({
-        name: contact.name,
-        row: String(contact.row),
+        rows.push(sc.row);
       });
+
+      if (!spreadsheetId) {
+        return;
+      }
+
+      await mutatePending({
+        sheetId: spreadsheetId,
+        rows: JSON.stringify(rows),
+      });
+
+      handleClearAll();
     },
   });
-
-  const {
-    data: contacts,
-    isLoading,
-    error,
-  } = trpc.useQuery(["sheets.getContacts"], {
-    enabled: !!valid,
-  });
-
-  const { data: schoolData } = trpc.useQuery(
-    ["sheets.getSchoolData", schoolName],
-    {
-      enabled: !!valid && !!schoolName,
-    },
-  );
 
   useEffect(() => {
     if (isSuccess) {
@@ -129,73 +97,19 @@ const AuthShowcase: React.FC = () => {
           }),
         8000,
       );
-      handleClearAll();
     }
   }, [isSuccess]);
 
+  const spreadsheetId = React.useMemo(() => {
+    return spreadsheets.find((s) => s.title === schoolName)?.sheetId;
+  }, [spreadsheets, schoolName]);
+
   const filteredContacts: User[] = React.useMemo(() => {
-    if (!contacts) {
-      return [];
-    }
-
-    const result: User[] = [];
-
-    console.log(schoolData);
-    contacts.forEach(({ name, phone }) => {
-      let row;
-      let pendingPay;
-      let paid;
-
-      if (!phone || !name) {
-        return;
-      }
-
-      if (schoolData) {
-        const [paymentData, attendance] = schoolData;
-        if (!attendance.has(name)) {
-          return;
-        }
-
-        if (paymentData) {
-          row = paymentData[name]?.row;
-          pendingPay = paymentData[name]?.pendingPay;
-          paid = paymentData[name]?.paid;
-        }
-      }
-
-      result.push({
-        name,
-        phone,
-        pendingPay,
-        paid,
-        row,
-      });
-    });
-
-    return result;
-  }, [contacts, schoolData]);
+    return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone));
+  }, [contacts, checkedPhoneNumbers]);
 
   const selectedContacts: User[] = React.useMemo(() => {
-    if (!contacts) {
-      return [];
-    }
-
-    const result: User[] = [];
-
-    contacts.forEach(({ name, phone }) => {
-      if (!phone || !name) {
-        return;
-      }
-
-      if (checkedPhoneNumbers.has(phone)) {
-        result.push({
-          name,
-          phone,
-        });
-      }
-    });
-
-    return result;
+    return contacts.filter((c) => checkedPhoneNumbers.has(c.phone));
   }, [contacts, checkedPhoneNumbers]);
 
   const unitPrice: string = React.useMemo(() => {
@@ -277,18 +191,6 @@ const AuthShowcase: React.FC = () => {
       ]) as Set<string>,
     );
   }, [sentNumbers, checkedPhoneNumbers]);
-
-  if (!sessionData) {
-    return null;
-  }
-
-  if (isLoading) {
-    return <div>Loading contacts ...</div>;
-  }
-
-  if (error) {
-    return <div>Some error occurred {error.message}</div>;
-  }
 
   return (
     <div className="flex flex-col">

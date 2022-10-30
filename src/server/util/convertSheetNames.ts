@@ -6,6 +6,11 @@ interface SheetData {
   };
 }
 
+type Sheet = {
+  sheetId: string;
+  title: string;
+};
+
 const templateSpreadsheets = new Set([
   "Fall Schedule",
   "Contacts and Info",
@@ -13,7 +18,7 @@ const templateSpreadsheets = new Set([
 ]);
 
 export const convertSheetNames = (data: SheetData[]) => {
-  const results: any[] = [];
+  const results: Sheet[] = [];
 
   if (!data || data?.length < 1) {
     return [];
