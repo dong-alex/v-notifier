@@ -1,5 +1,5 @@
 import React from "react";
-import { User } from "../../pages/AuthShowcase";
+import { User } from "types/user";
 
 interface Props {
   contactArray: Array<User>;
