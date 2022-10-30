@@ -31,15 +31,7 @@ export const convertSchoolData = (
   }
 
   data.forEach((row: string[]) => {
-    const [
-      rowNumber,
-      name,
-      ,
-      attending,
-      ,
-      pendingPay,
-      paid,
-    ] = row;
+    const [rowNumber, name, , attending, , pendingPay, paid] = row;
 
     if (!convertStringToBoolean(attending)) {
       return;

@@ -1,7 +1,6 @@
 import React from "react";
 import { useSession } from "next-auth/react";
 import { trpc } from "../../utils/trpc";
-import SectionHeader from "../SectionHeader";
 
 interface ISpreadsheetDropdown {
   school: string;
@@ -51,17 +50,13 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
   }
 
   return (
-    <div id="spreadsheet-dropdown" className="my-5">
-      <SectionHeader name={"Spreadsheet"} />
-      <p>Select a specific booking to match all contacts who attended.</p>
+    <div id="spreadsheet-dropdown" className="mb-5">
       <select
         id="spreadsheet-name"
         onChange={(e) => handleSchool(e.target.value)}
         className="w-64 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       >
-        <option selected>
-          No school selected
-        </option>
+        <option selected>No school selected</option>
         {options}
       </select>
     </div>

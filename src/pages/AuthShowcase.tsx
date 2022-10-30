@@ -13,8 +13,11 @@ import { Label } from "../components/shared/label";
 import { RecentMessages } from "../components/RecentMessages";
 import { SpreadsheetDropdown } from "../components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
-
-const TEST_RECIPIENT = "780-850-8369";
+import SentMessageToast from "components/toast/SentMessageToast";
+import {
+  TestNumberCheckbox,
+  TEST_RECIPIENT,
+} from "components/shared/TestNumberCheckbox";
 
 const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
@@ -30,7 +33,6 @@ const AuthShowcase: React.FC = () => {
   >(new Set());
 
   const [sentNumbers, setSentNumbers] = useState<Set<string>>(new Set());
-
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [schoolName, setSchoolName] = useState<string>("");
 
@@ -143,7 +145,7 @@ const AuthShowcase: React.FC = () => {
       let row;
       let pendingPay;
       let paid;
- 
+
       if (!phone || !name) {
         return;
       }
@@ -211,7 +213,9 @@ const AuthShowcase: React.FC = () => {
       }
 
       setMessagePlaceholder(
-        `Send ${unitPrice} to ${email} for the recent booking`,
+        `Send ${unitPrice} to ${email} for ${
+          schoolName ? schoolName : "recent booking"
+        }`,
       );
     },
     [unitPrice],
@@ -372,19 +376,12 @@ const AuthShowcase: React.FC = () => {
                 defaultValue={messagePlaceholder}
               />
             </div>
-            <div className="flex">
-              <input
-                type={"checkbox"}
-                checked={useTestNumber}
-                onChange={() => {
-                  setUseTestNumber(!useTestNumber);
-                }}
-                className="mr-2"
-              />
-              <span className="leading-none">
-                Use Test Number: {TEST_RECIPIENT}
-              </span>
-            </div>
+            <TestNumberCheckbox
+              useTestNumber={useTestNumber}
+              handleTestNumberChange={() => {
+                setUseTestNumber(!useTestNumber);
+              }}
+            />
           </div>
           <button
             className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full"
@@ -393,29 +390,7 @@ const AuthShowcase: React.FC = () => {
             Send
           </button>
           {displayToast.display && (
-            <div
-              id="toast-bottom-left"
-              className="flex absolute bottom-5 left-5 items-center p-4 space-x-4 w-full max-w-xs text-gray-500 bg-white rounded-lg divide-x divide-gray-200 shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800"
-              role="alert"
-            >
-              <div className="inline-flex flex-shrink-0 justify-center items-center w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-                <svg
-                  aria-hidden="true"
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  ></path>
-                </svg>
-                <span className="sr-only">Check icon</span>
-              </div>
-              <span className="text-sm font-normal">{`Message sent successfully to ${displayToast.countSent} persons`}</span>
-            </div>
+            <SentMessageToast countSent={displayToast.countSent} />
           )}
         </form>
         {sendMessageError && (

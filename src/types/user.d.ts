@@ -3,4 +3,5 @@ export interface User {
   phone: string;
   pendingPay?: boolean;
   paid?: boolean;
+  row?: string;
 }
