@@ -1,7 +1,7 @@
 import React from "react";
 import SectionHeader from "../SectionHeader";
-import ContactList from "../contacts/ContactList";
-import { User } from "../../pages/AuthShowcase";
+import { User } from "types/user";
+import ContactList from "./ContactList";
 
 interface Props {
   name: string;

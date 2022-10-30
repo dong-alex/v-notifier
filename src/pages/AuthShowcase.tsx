@@ -12,14 +12,7 @@ import {
 import { Label } from "../components/shared/label";
 import { RecentMessages } from "../components/RecentMessages";
 import { SpreadsheetDropdown } from "../components/spreadsheet/SpreadsheetDropdown";
-
-// TODO: move shared types out
-export interface User {
-  name: string;
-  phone: string;
-  pendingPay?: boolean | null;
-  paid?: boolean | null;
-}
+import { User } from "types/user";
 
 const TEST_RECIPIENT = "780-850-8369";
 
