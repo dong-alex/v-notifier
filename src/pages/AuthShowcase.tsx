@@ -14,8 +14,10 @@ import { RecentMessages } from "../components/RecentMessages";
 import { SpreadsheetDropdown } from "../components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
 import SentMessageToast from "components/toast/SentMessageToast";
-
-const TEST_RECIPIENT = "780-850-8369";
+import {
+  TestNumberCheckbox,
+  TEST_RECIPIENT,
+} from "components/shared/TestNumberCheckbox";
 
 const AUTHORIZED_USERS = new Set([
   "c.patel@hotmail.ca",
@@ -31,7 +33,6 @@ const AuthShowcase: React.FC = () => {
   >(new Set());
 
   const [sentNumbers, setSentNumbers] = useState<Set<string>>(new Set());
-
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [schoolName, setSchoolName] = useState<string>("");
 
@@ -144,7 +145,7 @@ const AuthShowcase: React.FC = () => {
       let row;
       let pendingPay;
       let paid;
- 
+
       if (!phone || !name) {
         return;
       }
@@ -375,19 +376,12 @@ const AuthShowcase: React.FC = () => {
                 defaultValue={messagePlaceholder}
               />
             </div>
-            <div className="flex">
-              <input
-                type={"checkbox"}
-                checked={useTestNumber}
-                onChange={() => {
-                  setUseTestNumber(!useTestNumber);
-                }}
-                className="mr-2"
-              />
-              <span className="leading-none">
-                Use Test Number: {TEST_RECIPIENT}
-              </span>
-            </div>
+            <TestNumberCheckbox
+              useTestNumber={useTestNumber}
+              handleTestNumberChange={() => {
+                setUseTestNumber(!useTestNumber);
+              }}
+            />
           </div>
           <button
             className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full"
