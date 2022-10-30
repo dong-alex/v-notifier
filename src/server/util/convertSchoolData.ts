@@ -11,17 +11,19 @@ interface SchoolDatum {
   [name: string]: {
     pendingPay: boolean;
     paid: boolean;
-  }
+  };
 }
 
 const convertStringToBoolean = (boolString: string = "FALSE") => {
-  return boolString === "TRUE" ? true : false
-}
+  return boolString === "TRUE" ? true : false;
+};
 
-export const convertSchoolData = (data: Array<string[]>): [SchoolDatum, Set<string>] => {
+export const convertSchoolData = (
+  data: Array<string[]>,
+): [SchoolDatum, Set<string>] => {
   const results: SchoolDatum = {};
-  // TODO: no more attending set, use object.keys in auth showcase instead? 
-  const attendingSet: Set<string> = new Set()
+  // TODO: no more attending set, use object.keys in auth showcase instead?
+  const attendingSet: Set<string> = new Set();
 
   if (!data || data?.length < 1) {
     return [results, attendingSet];
@@ -35,7 +37,7 @@ export const convertSchoolData = (data: Array<string[]>): [SchoolDatum, Set<stri
     }
 
     if (name) {
-      attendingSet.add(name)
+      attendingSet.add(name);
 
       results[name] = {
         pendingPay: convertStringToBoolean(pendingPay),
