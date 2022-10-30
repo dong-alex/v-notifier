@@ -20,7 +20,6 @@ export const RecentMessages = () => {
         return `+1${c.phone?.replaceAll("-", "")}` === m.from;
       });
 
-      console.log(n);
       return {
         from: n?.name,
         body: m.body,
