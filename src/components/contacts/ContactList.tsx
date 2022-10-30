@@ -12,7 +12,7 @@ const getBackgroundColour = (pendingPay = false, paid = false): string => {
     return "bg-emerald-100";
   }
   return pendingPay ? "bg-indigo-100" : "bg-white";
-}
+};
 
 const GetContactButton = (
   user: User,
