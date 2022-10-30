@@ -12,9 +12,12 @@ import {
 import { Label } from "../components/shared/label";
 import { RecentMessages } from "../components/RecentMessages";
 
-interface User {
+// TODO: move shared types out
+export interface User {
   name: string;
   phone: string;
+  pendingPay?: boolean | null;
+  paid?: boolean | null;
 }
 
 const TEST_RECIPIENT: string = "780-850-8369";
@@ -36,6 +39,7 @@ const AuthShowcase: React.FC = () => {
 
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [showRecentMessages, setShowRecentMessages] = useState<boolean>(false);
+  const [schoolName, setSchoolName] = useState<string>("")
 
   const [displayToast, setDisplayToast] = useState({
     display: false,
@@ -70,6 +74,23 @@ const AuthShowcase: React.FC = () => {
     enabled: !!valid,
   });
 
+  const {
+    data: sheetsData,
+    isLoading: sheetsDataLoading,
+    error: sheetsDataError,
+  } = trpc.useQuery(["sheets.getSheetData"], {
+    enabled: !!valid,
+  });
+
+  // TODO: use schooldataloading and error 
+  const {
+    data: schoolData,
+    isLoading: schoolDataLoading,
+    error: schoolDataError,
+  } = trpc.useQuery(["sheets.getSchoolData", schoolName], {
+    enabled: !!valid && Boolean(schoolName),
+  });
+
   useEffect(() => {
     if (isSuccess) {
       setDisplayToast({ display: true, countSent: checkedPhoneNumbers.size });
@@ -100,20 +121,36 @@ const AuthShowcase: React.FC = () => {
     const result: User[] = [];
 
     contacts.forEach(({ name, phone }) => {
+      let pendingPay = null;
+      let paid = null;
       if (!phone || !name) {
         return;
+      }
+
+      if (schoolData) {
+        const [paymentData, attendance] = schoolData;
+        if (!attendance.has(name)) {
+          return;
+        }
+
+        if (paymentData) {
+          pendingPay = paymentData[name]?.pendingPay;
+          paid = paymentData[name]?.paid;
+        }
       }
 
       if (!checkedPhoneNumbers.has(phone)) {
         result.push({
           name,
           phone,
+          pendingPay,
+          paid,
         });
       }
     });
 
     return result;
-  }, [contacts, checkedPhoneNumbers]);
+  }, [contacts, checkedPhoneNumbers, schoolData]);
 
   const selectedContacts: User[] = React.useMemo(() => {
     if (!contacts) {
@@ -158,6 +195,10 @@ const AuthShowcase: React.FC = () => {
     },
     [unitPrice],
   );
+
+  const handleSchool = (school: string) => {
+    setSchoolName(school)
+  };
 
   const onSubmit = React.useCallback(async () => {
     if (!textareaRef.current) {
@@ -219,7 +260,7 @@ const AuthShowcase: React.FC = () => {
     return null;
   }
 
-  if (isLoading) {
+  if (isLoading || sheetsDataLoading) {
     return <div>Loading contacts ...</div>;
   }
 
@@ -229,6 +270,25 @@ const AuthShowcase: React.FC = () => {
 
   return (
     <div className="flex">
+      {/* TODO: clean  up dropdown */}
+      <div id="spreadsheet-dropdown" className="my-5">
+          <Label id="spreadsheet-name" title="Spreadsheet Name" />
+          <select
+            id="spreadsheet-name"
+            onChange={(e) => handleSchool(e.target.value)}
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option selected disabled>
+              Choose a spreadsheet
+            </option>
+            {sheetsData && sheetsData.map((sheetSchool: string, i: number) => {
+              return(
+              <option value={sheetSchool} key={i}>
+                {sheetSchool}
+              </option>
+            )})}
+          </select>
+        </div>
       <ContactSection
         name="Contacts"
         contactArray={filteredContacts}
