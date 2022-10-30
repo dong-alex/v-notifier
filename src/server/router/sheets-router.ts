@@ -45,4 +45,26 @@ export const sheetsRouter = createProtectedRouter()
         throw err;
       }
     },
+  })
+  .mutation("setPendingPay", {
+    input: z.object({
+      name: z.string(),
+      row: z.string(),
+    }),
+    resolve: async ({ input }) => {
+      try {
+        const { name, row } = input;
+
+        // todo: handle proper method for pending pay if more endpoints required to edit sheet
+        const response = await fetch(
+          `${getBaseUrl()}/api/sheet-data/${name}/${row}`,
+        );
+
+        const data = await response.json();
+
+        return data;
+      } catch (err) {
+        throw err;
+      }
+    },
   });
