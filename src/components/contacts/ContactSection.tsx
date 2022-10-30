@@ -1,10 +1,11 @@
 import React from 'react';
 import SectionHeader from "../SectionHeader"
 import ContactList from "../contacts/ContactList"
+import { User } from '../../pages/AuthShowcase';
 
 interface Props {
   name: string;
-  contactArray: Array<{name: string, phone: string}>;
+  contactArray: Array<User>;
   contactHandler: (number: string) => void;
   clearAllHandler?: () => void;
   sentContacts: Set<string>;
