@@ -26,7 +26,7 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
       };
 
       console.log("Attempting to retrieve sheet values");
-      let response = await sheetsAPI.spreadsheets.values.get(opt);
+      const response = await sheetsAPI.spreadsheets.values.get(opt);
 
       console.log("Sheet values obtained");
       res.status(200).json(response.data.values);

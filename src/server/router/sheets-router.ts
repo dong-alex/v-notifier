@@ -15,7 +15,7 @@ export const sheetsRouter = createProtectedRouter()
 
         return convertContacts(data);
       } catch (err) {
-        throw err;
+        throw `Error trying to getContacts: ${err}`;
       }
     },
   })
@@ -27,7 +27,7 @@ export const sheetsRouter = createProtectedRouter()
 
         return convertSheetNames(data);
       } catch (err) {
-        throw err;
+        throw `Error trying to getSheetData: ${err}`;
       }
     },
   })
@@ -42,7 +42,7 @@ export const sheetsRouter = createProtectedRouter()
 
         return convertSchoolData(data);
       } catch (err) {
-        throw err;
+        throw `Error trying to getSchoolData: ${err}`;
       }
     },
   })
@@ -64,7 +64,7 @@ export const sheetsRouter = createProtectedRouter()
 
         return data;
       } catch (err) {
-        throw err;
+        throw `Error trying to set pending payment: ${err}`;
       }
     },
   });

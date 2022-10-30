@@ -15,7 +15,7 @@ interface SchoolDatum {
   };
 }
 
-const convertStringToBoolean = (boolString: string = "FALSE") => {
+const convertStringToBoolean = (boolString = "FALSE") => {
   return boolString === "TRUE" ? true : false;
 };
 
@@ -34,9 +34,9 @@ export const convertSchoolData = (
     const [
       rowNumber,
       name,
-      asked,
+      ,
       attending,
-      unableToAttend,
+      ,
       pendingPay,
       paid,
     ] = row;

@@ -1,36 +1,30 @@
 import { z } from "zod";
 
 export const User = z.object({
-  name: z.string().nullish(),
-  phone: z.string().nullish(),
+  name: z.string(),
+  phone: z.string(),
 });
 
 type User = z.infer<typeof User>;
 
-export const convertContacts = (data: any): User[] => {
+export const convertContacts = (data: Array<string[]>): User[] => {
   const results: User[] = [];
 
   if (!data) {
     return [];
   }
 
-  if (!data.forEach) {
-    return [];
-  }
-
-  data.forEach((values: any[]) => {
+  data?.forEach((values: Array<string>) => {
     const [name, phone] = values;
 
-    // ignore contacts without a number
-    if (!phone) {
+    if (!phone || !name) {
       return;
     }
 
     // TODO: handle formatting of the phone numbers
-
     results.push({
-      name: name ?? "Unknown name",
-      phone: phone ?? "Unknown phone #",
+      name: name,
+      phone: phone,
     });
   });
 
