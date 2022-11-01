@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { trpc } from "../utils/trpc";
 import ContactSection from "components/contacts/ContactSection";
@@ -11,18 +11,13 @@ import { User } from "types/user";
 import { useContacts } from "components/hooks/useContacts";
 import { useSpreadsheets } from "components/hooks/useSpreadsheets";
 import SentMessageToast from "components/toast/SentMessageToast";
-import {
-  TestNumberCheckbox,
-  TEST_RECIPIENT,
-} from "components/shared/TestNumberCheckbox";
 import SectionWrapper from "@components/shared/SectionWrapper";
-
-const AUTHORIZED_USERS = new Set([
-  "c.patel@hotmail.ca",
-  "baffooneries@gmail.com",
-  "kevinlam13@hotmail.com",
-  "rmtiam@gmail.com",
-]);
+import { TextMessageBox } from "@components/paymentForm/TextMessageBox";
+import {
+  TEST_RECIPIENT,
+  TestNumberCheckbox,
+} from "@components/paymentForm/TestNumberCheckbox";
+import EmailDropdown from "@components/paymentForm/EmailDropdown";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -30,8 +25,6 @@ const AuthShowcase: React.FC = () => {
   const [checkedPhoneNumbers, setCheckedPhoneNumbers] = React.useState<
     Set<string>
   >(new Set());
-
-  const [sentNumbers, setSentNumbers] = useState<Set<string>>(new Set());
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
   const [schoolName, setSchoolName] = useState<string>("");
 
@@ -89,7 +82,6 @@ const AuthShowcase: React.FC = () => {
   useEffect(() => {
     if (isSuccess) {
       setDisplayToast({ display: true, countSent: checkedPhoneNumbers.size });
-      handleContactSent();
       setTimeout(
         () =>
           setDisplayToast({
@@ -128,7 +120,7 @@ const AuthShowcase: React.FC = () => {
       }
 
       setMessagePlaceholder(
-        `Send ${unitPrice} to ${email} for ${
+        `Send $${unitPrice} to ${email} for ${
           schoolName ? schoolName : "recent booking"
         }`,
       );
@@ -184,15 +176,6 @@ const AuthShowcase: React.FC = () => {
     [checkedPhoneNumbers],
   );
 
-  const handleContactSent = React.useCallback(() => {
-    setSentNumbers(
-      new Set([
-        ...Array.from(checkedPhoneNumbers),
-        ...Array.from(sentNumbers),
-      ]) as Set<string>,
-    );
-  }, [sentNumbers, checkedPhoneNumbers]);
-
   return (
     <div className="flex-col items-center p-3 md:p-0 md:items-start">
       <section className="flex w-full">
@@ -208,7 +191,6 @@ const AuthShowcase: React.FC = () => {
           name="Contacts"
           contactArray={filteredContacts}
           contactHandler={handleContactAdd}
-          sentContacts={sentNumbers}
         />
         <SectionWrapper name="Payment" maxMdWidth="md:w-80">
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -228,64 +210,25 @@ const AuthShowcase: React.FC = () => {
                 <CurrencyDisplay />
               </div>
             </div>
-            <div className="my-5">
-              <Label
-                id="price"
-                title={`Individual price for ${checkedPhoneNumbers.size} persons`}
-              />
-              <IndividualCost unitPrice={unitPrice} />
-            </div>
-            <div id="etransfer-dropdown" className="my-5">
-              <Label id="etransfer-email" title="E-transfer email" />
-              <select
-                id="etransfer-email"
-                onChange={(e) => hoverEmail(e.target.value)}
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              >
-                <option selected disabled>
-                  Choose an email
-                </option>
-                {Array.from(AUTHORIZED_USERS).map((email: string, i) => (
-                  <option value={email} key={i}>
-                    {email}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col">
-              <div className="mb-3">
-                <Label id="text-message" title="Text Message" />
-                <textarea
-                  className="
-          form-control
-          block
-          w-full
-          px-3
-          py-1.5
-          text-base
-          font-normal
-          text-gray-700
-          bg-white bg-clip-padding
-          border border-solid border-gray-300
-          rounded
-          transition
-          ease-in-out
-          m-0
-          focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
-        "
-                  id="exampleFormControlTextarea1"
-                  rows={3}
-                  ref={textareaRef}
-                  defaultValue={messagePlaceholder}
-                />
-              </div>
-              <TestNumberCheckbox
-                useTestNumber={useTestNumber}
-                handleTestNumberChange={() => {
-                  setUseTestNumber(!useTestNumber);
-                }}
-              />
-            </div>
+            <IndividualCost
+              unitPrice={unitPrice}
+              individualCount={checkedPhoneNumbers.size}
+            />
+            <EmailDropdown
+              handleEmailChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                hoverEmail(e?.target?.value)
+              }
+            />
+            <TextMessageBox
+              textareaRef={textareaRef}
+              messagePlaceholder={messagePlaceholder}
+            />
+            <TestNumberCheckbox
+              useTestNumber={useTestNumber}
+              handleTestNumberChange={() => {
+                setUseTestNumber(!useTestNumber);
+              }}
+            />
             <button
               className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full disabled:opacity-50"
               type="submit"
@@ -306,7 +249,6 @@ const AuthShowcase: React.FC = () => {
           contactArray={selectedContacts}
           contactHandler={handleContactRemove}
           clearAllHandler={handleClearAll}
-          sentContacts={sentNumbers}
         />
         <RecentMessages />
       </section>
