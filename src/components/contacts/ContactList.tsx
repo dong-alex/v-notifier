@@ -4,7 +4,6 @@ import { User } from "types/user";
 interface Props {
   contactArray: Array<User>;
   contactHandler: (number: string) => void;
-  sentContacts: Set<string>;
 }
 
 const getBackgroundColour = (pendingPay = false, paid = false): string => {
@@ -14,11 +13,7 @@ const getBackgroundColour = (pendingPay = false, paid = false): string => {
   return pendingPay ? "bg-indigo-100" : "bg-white";
 };
 
-const GetContactButton = (
-  user: User,
-  handler: (number: string) => void,
-  hasSentMessage: boolean,
-) => {
+const GetContactButton = (user: User, handler: (number: string) => void) => {
   const { name, phone, pendingPay, paid } = user;
   const backgroundColour = getBackgroundColour(pendingPay, paid);
   return (
@@ -28,21 +23,17 @@ const GetContactButton = (
         handler(phone);
       }}
     >
-      <span className="text-blue-500">
-        {name}
-        {hasSentMessage && " ✅"}
-      </span>
+      <span className="text-blue-500">{name}</span>
     </button>
   );
 };
 
-const ContactList = ({ contactArray, contactHandler, sentContacts }: Props) => {
+const ContactList = ({ contactArray, contactHandler }: Props) => {
   return (
     <div className="overflow-y-auto my-4 mr-8 max-h-96 p-2">
       {contactArray.length > 0 ? (
         contactArray.map((user) => {
-          const hasSentMessage = sentContacts.has(user.phone);
-          return GetContactButton(user, contactHandler, hasSentMessage);
+          return GetContactButton(user, contactHandler);
         })
       ) : (
         <span className="text-lg">🤔 No contacts currently available </span>

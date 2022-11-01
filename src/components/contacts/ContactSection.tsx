@@ -8,7 +8,6 @@ interface Props {
   contactArray: Array<User>;
   contactHandler: (number: string) => void;
   clearAllHandler?: () => void;
-  sentContacts: Set<string>;
 }
 
 const ContactSection = ({
@@ -16,14 +15,12 @@ const ContactSection = ({
   contactArray,
   contactHandler,
   clearAllHandler,
-  sentContacts,
 }: Props) => {
   return (
     <SectionWrapper name={name}>
       <ContactList
         contactArray={contactArray}
         contactHandler={contactHandler}
-        sentContacts={sentContacts}
       />
       {clearAllHandler && contactArray.length > 0 && (
         <div className="flex justify-end">
