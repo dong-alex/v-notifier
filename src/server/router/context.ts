@@ -13,6 +13,7 @@ export const AUTHORIZED_USERS = new Set([
   "adong@ualberta.ca",
   "kevinlam13@hotmail.com",
   "fashine.gaming@gmail.com",
+  "rmtiam@gmail.com",
 ]);
 
 /** Use this helper for:
