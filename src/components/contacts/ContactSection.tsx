@@ -1,7 +1,7 @@
 import React from "react";
-import SectionHeader from "../SectionHeader";
 import { User } from "types/user";
 import ContactList from "./ContactList";
+import SectionWrapper from "@components/shared/SectionWrapper";
 
 interface Props {
   name: string;
@@ -19,15 +19,14 @@ const ContactSection = ({
   sentContacts,
 }: Props) => {
   return (
-    <section id={name} className="w-96">
-      <SectionHeader name={name} />
+    <SectionWrapper name={name}>
       <ContactList
         contactArray={contactArray}
         contactHandler={contactHandler}
         sentContacts={sentContacts}
       />
       {clearAllHandler && contactArray.length > 0 && (
-        <div className="flex justify-end mr-8">
+        <div className="flex justify-end">
           <button
             type="button"
             onClick={() => clearAllHandler()}
@@ -37,7 +36,7 @@ const ContactSection = ({
           </button>
         </div>
       )}
-    </section>
+    </SectionWrapper>
   );
 };
 

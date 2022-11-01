@@ -1,6 +1,6 @@
 import React from "react";
 import { trpc } from "../utils/trpc";
-import SectionHeader from "./SectionHeader";
+import SectionWrapper from "./shared/SectionWrapper";
 
 export const RecentMessages = () => {
   const { data: messages } = trpc.useQuery(["messages.getMessages"]);
@@ -40,10 +40,9 @@ export const RecentMessages = () => {
       >
         {showRecentMessages ? "Hide Messages" : "Show Messages"}
       </button>
-      {showRecentMessages ? (
-        <section id={"recent-messages"} className="flex flex-col">
-          <SectionHeader name={"Recent Messages"} />
-          <div className="overflow-y-auto my-4 mr-8 max-h-96 p-2">
+      {showRecentMessages && (
+        <SectionWrapper name="Recent Messages">
+          <div className="overflow-y-auto max-h-96 p-2">
             <span className="text-blue-500">(Newest to Oldest)</span>
             {responders.map((m, i) => (
               <div key={`${m.from}-${i}`}>
@@ -51,8 +50,8 @@ export const RecentMessages = () => {
               </div>
             ))}
           </div>
-        </section>
-      ) : null}
+        </SectionWrapper>
+      )}
     </>
   );
 };

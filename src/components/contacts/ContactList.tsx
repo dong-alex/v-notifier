@@ -39,10 +39,14 @@ const GetContactButton = (
 const ContactList = ({ contactArray, contactHandler, sentContacts }: Props) => {
   return (
     <div className="overflow-y-auto my-4 mr-8 max-h-96 p-2">
-      {contactArray.map((user) => {
-        const hasSentMessage = sentContacts.has(user.phone);
-        return GetContactButton(user, contactHandler, hasSentMessage);
-      })}
+      {contactArray.length > 0 ? (
+        contactArray.map((user) => {
+          const hasSentMessage = sentContacts.has(user.phone);
+          return GetContactButton(user, contactHandler, hasSentMessage);
+        })
+      ) : (
+        <span className="text-lg">🤔 No contacts currently available </span>
+      )}
     </div>
   );
 };
