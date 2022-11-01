@@ -18,6 +18,8 @@ export const TestNumberCheckbox = ({
       onChange={handleTestNumberChange}
       className="mr-2"
     />
-    <span className="leading-none">Use Test Number: {TEST_RECIPIENT}</span>
+    <span className="leading-none text-sm">
+      Use Test Number: {TEST_RECIPIENT}
+    </span>
   </div>
 );
