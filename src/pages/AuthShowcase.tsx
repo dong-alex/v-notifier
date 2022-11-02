@@ -5,7 +5,6 @@ import ContactSection from "components/contacts/ContactSection";
 import IndividualCost from "components/IndividualCost";
 import { MoneySymbol, CurrencyDisplay } from "components/currencyUtil/currency";
 import { Label } from "components/shared/label";
-import { RecentMessages } from "components/RecentMessages";
 import { SpreadsheetDropdown } from "components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
 import { useContacts } from "components/hooks/useContacts";
@@ -18,6 +17,7 @@ import {
   TestNumberCheckbox,
 } from "@components/paymentForm/TestNumberCheckbox";
 import EmailDropdown from "@components/paymentForm/EmailDropdown";
+import { RecentMessages } from "@components/recentMessages/RecentMessages";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -178,13 +178,14 @@ const AuthShowcase: React.FC = () => {
 
   return (
     <div className="flex-col items-center p-3 md:p-0 md:items-start">
-      <section className="flex w-full">
+      <section className="flex w-full flex-col md:flex-row md:justify-between">
         <SpreadsheetDropdown
           school={schoolName}
           onSchoolChange={(s: string) => {
             setSchoolName(s);
           }}
         />
+        <RecentMessages />
       </section>
       <section className="flex flex-col md:flex-row">
         <ContactSection
@@ -250,7 +251,6 @@ const AuthShowcase: React.FC = () => {
           contactHandler={handleContactRemove}
           clearAllHandler={handleClearAll}
         />
-        <RecentMessages />
       </section>
     </div>
   );
