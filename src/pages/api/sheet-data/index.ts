@@ -26,14 +26,10 @@ const getSheetData = async (req: NextApiRequest, res: NextApiResponse) => {
 
       console.log("Sheet data obtained");
 
-      res.status(200).json(response?.data?.sheets);
-
-      return;
+      return res.status(200).send(response?.data?.sheets);
     });
   } catch (err) {
-    res.status(500).json(err);
-
-    return;
+    return res.status(500).send(err);
   }
 };
 

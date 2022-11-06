@@ -35,14 +35,10 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
         return [row++, ...v];
       });
 
-      res.status(200).json(r);
-
-      return;
+      return res.status(200).send(r);
     });
   } catch (err) {
-    res.status(500).json(err);
-
-    return;
+    return res.status(500).send(err);
   }
 };
 

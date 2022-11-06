@@ -63,12 +63,10 @@ const setPendingPay = (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-      res.status(200).json({});
-
-      return;
+      return res.status(200).send({});
     });
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).send(err);
   }
 };
 

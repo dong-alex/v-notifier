@@ -29,14 +29,10 @@ const getContacts = async (req: NextApiRequest, res: NextApiResponse) => {
       const response = await sheetsAPI.spreadsheets.values.get(opt);
 
       console.log("Sheet values obtained");
-      res.status(200).json(response.data.values);
-
-      return;
+      return res.status(200).send(response.data.values);
     });
   } catch (err) {
-    res.status(500).json(err);
-
-    return;
+    return res.status(500).send(err);
   }
 };
 
