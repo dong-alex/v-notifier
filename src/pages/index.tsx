@@ -15,7 +15,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/volleyball-emoji.png" />
         <meta name="color-scheme" content="light only" />
       </Head>
-      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900 border-y dark:bg-gray-800 dark:border-gray-600">
+      <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded border-y">
         <div className="container flex flex-wrap justify-between items-center mx-auto">
           <div className="flex items-center">
             <Image
@@ -24,7 +24,7 @@ const Home: NextPage = () => {
               width={25}
               height={25}
             />
-            <span className="self-center ml-2 text-2xl font-semibold whitespace-nowrap dark:text-white">
+            <span className="self-center ml-2 text-2xl font-semibold whitespace-nowrap">
               <span className="text-purple-300">V</span> Notifier
             </span>
           </div>
@@ -41,7 +41,7 @@ const Home: NextPage = () => {
 
             <button
               type="button"
-              className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+              className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
               onClick={sessionData ? () => signOut() : () => signIn()}
             >
               {sessionData ? "Sign out" : "Sign in"}
