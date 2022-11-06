@@ -11,12 +11,11 @@ const EmailDropdown = ({ handleEmailChange }: EmailDropdownProps) => (
     <Label id="etransfer-email" title="E-transfer email" />
     <select
       id="etransfer-email"
+      defaultValue={"Choose an email"}
       onChange={handleEmailChange}
       className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
     >
-      <option selected disabled>
-        Choose an email
-      </option>
+      <option disabled>Choose an email</option>
       {Array.from(AUTHORIZED_USERS).map((email: string, i) => (
         <option value={email} key={i}>
           {email}

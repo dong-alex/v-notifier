@@ -2,6 +2,7 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import { User } from "types/user";
 import { trpc } from "utils/trpc";
+import { NO_SPREADSHEET_OPTION } from "@components/spreadsheet/SpreadsheetDropdown";
 
 interface IUseContacts {
   contacts: User[];
@@ -27,7 +28,7 @@ export const useContacts = (schoolName: string): IUseContacts => {
   const { data: schoolData } = trpc.useQuery(
     ["sheets.getSchoolData", schoolName],
     {
-      enabled: !!valid && !!schoolName,
+      enabled: !!valid && !!schoolName && schoolName !== NO_SPREADSHEET_OPTION,
     },
   );
 

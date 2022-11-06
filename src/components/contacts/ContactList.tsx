@@ -18,6 +18,7 @@ const GetContactButton = (user: User, handler: (number: string) => void) => {
   const backgroundColour = getBackgroundColour(pendingPay, paid);
   return (
     <button
+      key={user.name}
       className={`w-full py-2.5 px-5 mx-1 my-1 text-sm font-medium focus:outline-none ${backgroundColour} rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200`}
       onClick={() => {
         handler(phone);
