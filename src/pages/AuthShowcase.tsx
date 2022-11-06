@@ -1,4 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
+import { ReactQueryDevtools } from "react-query/devtools";
 import { useForm } from "react-hook-form";
 import { trpc } from "../utils/trpc";
 import ContactSection from "components/contacts/ContactSection";
@@ -18,6 +19,7 @@ import {
 } from "@components/paymentForm/TestNumberCheckbox";
 import EmailDropdown from "@components/paymentForm/EmailDropdown";
 import { RecentMessages } from "@components/recentMessages/RecentMessages";
+import { Invoice } from "@components/invoice/Invoice";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -178,6 +180,7 @@ const AuthShowcase: React.FC = () => {
 
   return (
     <div className="flex-col items-center p-3 md:p-0 md:items-start">
+      <Invoice />
       <section className="flex w-full flex-col md:flex-row md:justify-between">
         <SpreadsheetDropdown
           school={schoolName}
@@ -252,6 +255,9 @@ const AuthShowcase: React.FC = () => {
           clearAllHandler={handleClearAll}
         />
       </section>
+      {process.env.NODE_ENV !== "production" && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
     </div>
   );
 };
