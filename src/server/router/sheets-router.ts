@@ -54,6 +54,25 @@ export const sheetsRouter = createProtectedRouter()
       }
     },
   })
+  .query("getUnitCost", {
+    input: z.string(),
+    output: z.string().array(),
+    resolve: async ({ input }) => {
+      try {
+        const response = await fetch(
+          `${getBaseUrl()}/api/school-data/unit-cost?schoolName=${input}`,
+        );
+
+        const data: string[][] = await response.json();
+
+        const results = data.pop();
+
+        return results ?? [];
+      } catch (err) {
+        throw `Error trying to getUnitCost: ${err}`;
+      }
+    },
+  })
   .mutation("setPendingPay", {
     input: z.object({
       rows: z.string(), // all row numbers to set the pending pay to 'true'
