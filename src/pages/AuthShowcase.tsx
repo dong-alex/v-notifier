@@ -1,11 +1,10 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { useForm } from "react-hook-form";
 import { trpc } from "../utils/trpc";
 import ContactSection from "components/contacts/ContactSection";
-import IndividualCost from "components/IndividualCost";
+import IndividualCost from "components/paymentForm/IndividualCost";
 import { MoneySymbol, CurrencyDisplay } from "components/currencyUtil/currency";
-import { Label } from "components/shared/label";
 import { SpreadsheetDropdown } from "components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
 import { useContacts } from "components/hooks/useContacts";
@@ -19,7 +18,6 @@ import {
 } from "@components/paymentForm/TestNumberCheckbox";
 import EmailDropdown from "@components/paymentForm/EmailDropdown";
 import { RecentMessages } from "@components/recentMessages/RecentMessages";
-import { Invoice } from "@components/invoice/Invoice";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -28,22 +26,23 @@ const AuthShowcase: React.FC = () => {
     Set<string>
   >(new Set());
   const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
-  const [schoolName, setSchoolName] = useState<string>("");
+  const { register, handleSubmit, watch, setValue } = useForm({
+    defaultValues: {
+      individualCost: "0.00",
+      email: '',
+      schoolName: '',
+      textMessage: ''
+    }
+  });
 
-  const { contacts } = useContacts(schoolName);
+  const watchFields = watch();
+
+  const { contacts } = useContacts(watchFields?.schoolName);
 
   const [displayToast, setDisplayToast] = useState({
     display: false,
     countSent: 0,
   });
-
-  const [messagePlaceholder, setMessagePlaceholder] = useState<string>("");
-
-  const { register, handleSubmit, watch } = useForm();
-
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-
-  const totalPrice = watch("total-price") as string;
 
   const { spreadsheets } = useSpreadsheets();
 
@@ -95,9 +94,17 @@ const AuthShowcase: React.FC = () => {
     }
   }, [isSuccess]);
 
+  useEffect(() => {
+    const messagePlaceholder =`Send $${watchFields.individualCost} to ${watchFields.email} for ${
+      watchFields.schoolName || "recent booking"
+    }`
+
+    setValue('textMessage', messagePlaceholder)
+  }, [watchFields.schoolName, watchFields.individualCost, watchFields.email])
+
   const spreadsheetId = React.useMemo(() => {
-    return spreadsheets.find((s) => s.title === schoolName)?.sheetId;
-  }, [spreadsheets, schoolName]);
+    return spreadsheets.find((s) => s.title === watchFields.schoolName)?.sheetId;
+  }, [spreadsheets]);
 
   const filteredContacts: User[] = React.useMemo(() => {
     return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone));
@@ -107,48 +114,16 @@ const AuthShowcase: React.FC = () => {
     return contacts.filter((c) => checkedPhoneNumbers.has(c.phone));
   }, [contacts, checkedPhoneNumbers]);
 
-  const unitPrice: string = React.useMemo(() => {
-    if (checkedPhoneNumbers.size === 0) {
-      return "0.00";
-    }
-
-    return String((Number(totalPrice) / checkedPhoneNumbers.size).toFixed(2));
-  }, [totalPrice, checkedPhoneNumbers]);
-
-  const hoverEmail = React.useCallback(
-    (email: string) => {
-      if (!textareaRef.current) {
-        return;
-      }
-
-      setMessagePlaceholder(
-        `Send $${unitPrice} to ${email} for ${
-          schoolName ? schoolName : "recent booking"
-        }`,
-      );
-    },
-    [unitPrice],
-  );
-
   const onSubmit = React.useCallback(async () => {
-    if (!textareaRef.current) {
-      return;
-    }
-
-    const refactoredMessage = textareaRef.current.value.replace(
-      "{unit-price}",
-      unitPrice,
-    );
-
     const recipients: string[] = useTestNumber
       ? [TEST_RECIPIENT]
       : Array.from(checkedPhoneNumbers);
 
     mutate({
       phone: JSON.stringify(recipients),
-      message: `${refactoredMessage}`,
+      message: `${watchFields.textMessage}`,
     });
-  }, [unitPrice, useTestNumber, checkedPhoneNumbers, mutate]);
+  }, [useTestNumber, checkedPhoneNumbers, mutate]);
 
   const handleClearAll = () => {
     setCheckedPhoneNumbers(new Set());
@@ -180,13 +155,9 @@ const AuthShowcase: React.FC = () => {
 
   return (
     <div className="flex-col items-center p-3 md:p-0 md:items-start">
-      <Invoice />
       <section className="flex w-full flex-col md:flex-row md:justify-between">
         <SpreadsheetDropdown
-          school={schoolName}
-          onSchoolChange={(s: string) => {
-            setSchoolName(s);
-          }}
+          register={register}
         />
         <RecentMessages />
       </section>
@@ -198,34 +169,16 @@ const AuthShowcase: React.FC = () => {
         />
         <SectionWrapper name="Payment" maxMdWidth="md:w-80">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="mt-5">
-              <Label id="price" title="Price" />
-              <div className="relative mt-1 rounded-md shadow-sm">
-                <MoneySymbol />
-                <input
-                  type="number"
-                  step="0.01"
-                  id="price"
-                  className="block w-full rounded-md border-gray-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  placeholder="0.00"
-                  pattern="^\d*(\.\d{0,2})?$"
-                  {...register("total-price")}
-                />
-                <CurrencyDisplay />
-              </div>
-            </div>
             <IndividualCost
-              unitPrice={unitPrice}
-              individualCount={checkedPhoneNumbers.size}
+              title={watchFields.schoolName}
+              setValue={setValue}
+              register={register}
             />
             <EmailDropdown
-              handleEmailChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                hoverEmail(e?.target?.value)
-              }
+              register={register}
             />
             <TextMessageBox
-              textareaRef={textareaRef}
-              messagePlaceholder={messagePlaceholder}
+              register={register}
             />
             <TestNumberCheckbox
               useTestNumber={useTestNumber}
@@ -236,7 +189,7 @@ const AuthShowcase: React.FC = () => {
             <button
               className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full disabled:opacity-50"
               type="submit"
-              disabled={checkedPhoneNumbers.size === 0}
+              disabled={(checkedPhoneNumbers.size === 0 && !useTestNumber)}
             >
               Send
             </button>
