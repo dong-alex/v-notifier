@@ -29,10 +29,10 @@ const AuthShowcase: React.FC = () => {
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       individualCost: "0.00",
-      email: '',
-      schoolName: '',
-      textMessage: ''
-    }
+      email: "",
+      schoolName: "",
+      textMessage: "",
+    },
   });
 
   const watchFields = watch();
@@ -95,15 +95,16 @@ const AuthShowcase: React.FC = () => {
   }, [isSuccess]);
 
   useEffect(() => {
-    const messagePlaceholder =`Send $${watchFields.individualCost} to ${watchFields.email} for ${
-      watchFields.schoolName || "recent booking"
-    }`
+    const messagePlaceholder = `Send $${watchFields.individualCost} to ${
+      watchFields.email || "[select an email!]"
+    } for ${watchFields.schoolName || "recent booking"}`;
 
-    setValue('textMessage', messagePlaceholder)
-  }, [watchFields.schoolName, watchFields.individualCost, watchFields.email])
+    setValue("textMessage", messagePlaceholder);
+  }, [watchFields.schoolName, watchFields.individualCost, watchFields.email]);
 
   const spreadsheetId = React.useMemo(() => {
-    return spreadsheets.find((s) => s.title === watchFields.schoolName)?.sheetId;
+    return spreadsheets.find((s) => s.title === watchFields.schoolName)
+      ?.sheetId;
   }, [spreadsheets]);
 
   const filteredContacts: User[] = React.useMemo(() => {
@@ -156,9 +157,7 @@ const AuthShowcase: React.FC = () => {
   return (
     <div className="flex-col items-center p-3 md:p-0 md:items-start">
       <section className="flex w-full flex-col md:flex-row md:justify-between">
-        <SpreadsheetDropdown
-          register={register}
-        />
+        <SpreadsheetDropdown register={register} />
         <RecentMessages />
       </section>
       <section className="flex flex-col md:flex-row">
@@ -174,12 +173,8 @@ const AuthShowcase: React.FC = () => {
               setValue={setValue}
               register={register}
             />
-            <EmailDropdown
-              register={register}
-            />
-            <TextMessageBox
-              register={register}
-            />
+            <EmailDropdown register={register} />
+            <TextMessageBox register={register} />
             <TestNumberCheckbox
               useTestNumber={useTestNumber}
               handleTestNumberChange={() => {
@@ -189,7 +184,7 @@ const AuthShowcase: React.FC = () => {
             <button
               className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full disabled:opacity-50"
               type="submit"
-              disabled={(checkedPhoneNumbers.size === 0 && !useTestNumber)}
+              disabled={checkedPhoneNumbers.size === 0 && !useTestNumber}
             >
               Send
             </button>
