@@ -5,9 +5,7 @@ interface TextMessageBoxProps {
   register: any;
 }
 
-export const TextMessageBox = ({
-  register,
-}: TextMessageBoxProps) => (
+export const TextMessageBox = ({ register }: TextMessageBoxProps) => (
   <div className="flex flex-col">
     <div className="mb-3">
       <Label id="text-message" title="Text Message" />
