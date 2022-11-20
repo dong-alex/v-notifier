@@ -4,7 +4,7 @@ import { MoneySymbol, CurrencyDisplay } from "../currencyUtil/currency";
 import { Label } from "../shared/label";
 
 interface Props {
-  title?: string;
+  title: string;
   register: any;
   setValue: any;
 }
