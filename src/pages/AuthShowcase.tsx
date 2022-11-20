@@ -120,9 +120,8 @@ const AuthShowcase: React.FC = () => {
   ]);
 
   const spreadsheetId = React.useMemo(() => {
-    return spreadsheets.find((s) => s.title === watchFields.schoolName)
-      ?.sheetId;
-  }, [spreadsheets]);
+    return spreadsheets.find((s) => s.title === watchFields.schoolName)?.sheetId;
+  }, [spreadsheets, watchFields.schoolName]);
 
   const filteredContacts: User[] = React.useMemo(() => {
     return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone));
