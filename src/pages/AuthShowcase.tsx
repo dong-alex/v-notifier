@@ -18,6 +18,7 @@ import {
 } from "@components/paymentForm/TestNumberCheckbox";
 import EmailDropdown from "@components/paymentForm/EmailDropdown";
 import { RecentMessages } from "@components/recentMessages/RecentMessages";
+import IndividualNumber from "@components/paymentForm/IndividualNumber";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -32,6 +33,7 @@ const AuthShowcase: React.FC = () => {
       email: "",
       schoolName: "",
       textMessage: "",
+      individualNumber: 1,
     },
   });
 
@@ -95,12 +97,27 @@ const AuthShowcase: React.FC = () => {
   }, [isSuccess]);
 
   useEffect(() => {
-    const messagePlaceholder = `Send $${watchFields.individualCost} to ${
-      watchFields.email || "[select an email!]"
-    } for ${watchFields.schoolName || "recent booking"}`;
+    const { individualCost, email, schoolName, individualNumber } = watchFields;
+
+    let formattedCost = individualCost;
+    if (individualNumber > 1) {
+      const totalCost = (
+        Number(watchFields.individualCost) * individualNumber
+      ).toFixed(2);
+      formattedCost = `${totalCost} for ${individualNumber} people`;
+    }
+
+    const messagePlaceholder = `Send $${formattedCost} to ${
+      email || "[select an email!]"
+    } for ${schoolName || "recent booking"}`;
 
     setValue("textMessage", messagePlaceholder);
-  }, [watchFields.schoolName, watchFields.individualCost, watchFields.email]);
+  }, [
+    watchFields.schoolName,
+    watchFields.individualCost,
+    watchFields.email,
+    watchFields.individualNumber,
+  ]);
 
   const spreadsheetId = React.useMemo(() => {
     return spreadsheets.find((s) => s.title === watchFields.schoolName)
@@ -173,6 +190,7 @@ const AuthShowcase: React.FC = () => {
               setValue={setValue}
               register={register}
             />
+            <IndividualNumber register={register} />
             <EmailDropdown register={register} />
             <TextMessageBox register={register} />
             <TestNumberCheckbox
