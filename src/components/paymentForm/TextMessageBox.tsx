@@ -1,14 +1,12 @@
-import React, { LegacyRef } from "react";
+import React from "react";
 import { Label } from "@components/shared/label";
 
 interface TextMessageBoxProps {
-  textareaRef: LegacyRef<HTMLTextAreaElement>;
-  messagePlaceholder: string;
+  register: any;
 }
 
 export const TextMessageBox = ({
-  textareaRef,
-  messagePlaceholder,
+  register,
 }: TextMessageBoxProps) => (
   <div className="flex flex-col">
     <div className="mb-3">
@@ -33,8 +31,7 @@ focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
 "
         id="exampleFormControlTextarea1"
         rows={3}
-        ref={textareaRef}
-        defaultValue={messagePlaceholder}
+        {...register("textMessage")}
       />
     </div>
   </div>
