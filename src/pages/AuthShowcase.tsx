@@ -4,12 +4,10 @@ import { useForm } from "react-hook-form";
 import { trpc } from "../utils/trpc";
 import ContactSection from "components/contacts/ContactSection";
 import IndividualCost from "components/paymentForm/IndividualCost";
-import { MoneySymbol, CurrencyDisplay } from "components/currencyUtil/currency";
 import { SpreadsheetDropdown } from "components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
 import { useContacts } from "components/hooks/useContacts";
 import { useSpreadsheets } from "components/hooks/useSpreadsheets";
-import SentMessageToast from "components/toast/SentMessageToast";
 import SectionWrapper from "@components/shared/SectionWrapper";
 import { TextMessageBox } from "@components/paymentForm/TextMessageBox";
 import {
@@ -19,6 +17,7 @@ import {
 import EmailDropdown from "@components/paymentForm/EmailDropdown";
 import { RecentMessages } from "@components/recentMessages/RecentMessages";
 import IndividualNumber from "@components/paymentForm/IndividualNumber";
+import { SentMessageStatus } from "@components/paymentForm/SentMessageStatus";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -41,10 +40,7 @@ const AuthShowcase: React.FC = () => {
 
   const { contacts } = useContacts(watchFields?.schoolName);
 
-  const [displayToast, setDisplayToast] = useState({
-    display: false,
-    countSent: 0,
-  });
+  const [lastSentCount, setLastSentCount] = useState<number>(0);
 
   const { spreadsheets } = useSpreadsheets();
 
@@ -70,6 +66,7 @@ const AuthShowcase: React.FC = () => {
       });
 
       if (!spreadsheetId) {
+        handleClearAll();
         return;
       }
 
@@ -81,20 +78,6 @@ const AuthShowcase: React.FC = () => {
       handleClearAll();
     },
   });
-
-  useEffect(() => {
-    if (isSuccess) {
-      setDisplayToast({ display: true, countSent: checkedPhoneNumbers.size });
-      setTimeout(
-        () =>
-          setDisplayToast({
-            display: false,
-            countSent: displayToast.countSent,
-          }),
-        8000,
-      );
-    }
-  }, [isSuccess]);
 
   useEffect(() => {
     const { individualCost, email, schoolName, individualNumber } = watchFields;
@@ -120,7 +103,8 @@ const AuthShowcase: React.FC = () => {
   ]);
 
   const spreadsheetId = React.useMemo(() => {
-    return spreadsheets.find((s) => s.title === watchFields.schoolName)?.sheetId;
+    return spreadsheets.find((s) => s.title === watchFields.schoolName)
+      ?.sheetId;
   }, [spreadsheets, watchFields.schoolName]);
 
   const filteredContacts: User[] = React.useMemo(() => {
@@ -136,11 +120,13 @@ const AuthShowcase: React.FC = () => {
       ? [TEST_RECIPIENT]
       : Array.from(checkedPhoneNumbers);
 
+    setLastSentCount(recipients.length);
+
     mutate({
       phone: JSON.stringify(recipients),
       message: `${watchFields.textMessage}`,
     });
-  }, [useTestNumber, checkedPhoneNumbers, mutate]);
+  }, [useTestNumber, checkedPhoneNumbers, mutate, watchFields.textMessage]);
 
   const handleClearAll = () => {
     setCheckedPhoneNumbers(new Set());
@@ -198,21 +184,22 @@ const AuthShowcase: React.FC = () => {
                 setUseTestNumber(!useTestNumber);
               }}
             />
-            <button
-              className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full disabled:opacity-50"
-              type="submit"
-              disabled={checkedPhoneNumbers.size === 0 && !useTestNumber}
-            >
-              Send
-            </button>
-            {displayToast.display && (
-              <SentMessageToast countSent={displayToast.countSent} />
-            )}
+            <>
+              <button
+                className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full disabled:opacity-50"
+                type="submit"
+                disabled={checkedPhoneNumbers.size === 0 && !useTestNumber}
+              >
+                Send
+              </button>
+              <SentMessageStatus
+                sentCount={lastSentCount}
+                errorMessage={sendMessageError}
+                isSuccess={isSuccess}
+              />
+            </>
           </form>
         </SectionWrapper>
-        {sendMessageError && (
-          <span>An error has occurred when attempting to send the message</span>
-        )}
         <ContactSection
           name="Recipients"
           contactArray={selectedContacts}
@@ -220,7 +207,7 @@ const AuthShowcase: React.FC = () => {
           clearAllHandler={handleClearAll}
         />
       </section>
-      {process.env.NODE_ENV !== "production" && (
+      {!IS_PRODUCTION && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}
     </div>
