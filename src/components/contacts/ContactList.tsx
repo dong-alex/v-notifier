@@ -31,7 +31,7 @@ const GetContactButton = (user: User, handler: (number: string) => void) => {
 
 const ContactList = ({ contactArray, contactHandler }: Props) => {
   return (
-    <div className="overflow-y-auto my-4 mr-8 max-h-96 p-2">
+    <div className="overflow-y-auto overflow-x-hidden my-4 mr-8 max-h-96 p-2">
       {contactArray.length > 0 ? (
         contactArray.map((user) => {
           return GetContactButton(user, contactHandler);
