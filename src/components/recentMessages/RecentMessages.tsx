@@ -6,7 +6,9 @@ import MessageList from "./messageList";
 import Overlay from "./overlay";
 
 export const RecentMessages = () => {
-  const { data: messages } = trpc.useQuery(["messages.getMessages"]);
+  const { data: messages, isLoading: loading } = trpc.useQuery([
+    "messages.getMessages",
+  ]);
   const { data: contacts } = trpc.useQuery(["sheets.getContacts"]);
 
   const [showRecentMessages, setShowRecentMessages] =
@@ -30,18 +32,15 @@ export const RecentMessages = () => {
     });
   }, [contacts, messages]);
 
-  if (!messages) {
-    return null;
-  }
-
   return (
     <>
       <button
         type="button"
         className="h-10 text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2"
         onClick={() => setShowRecentMessages(!showRecentMessages)}
+        disabled={loading}
       >
-        Messages
+        {loading ? "Loading messages..." : "Messages"}
       </button>
       <Transition.Root show={showRecentMessages} as={Fragment}>
         <Dialog

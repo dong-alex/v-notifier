@@ -18,6 +18,7 @@ import EmailDropdown from "@components/paymentForm/EmailDropdown";
 import { RecentMessages } from "@components/recentMessages/RecentMessages";
 import IndividualNumber from "@components/paymentForm/IndividualNumber";
 import { SentMessageStatus } from "@components/paymentForm/SentMessageStatus";
+import { SubmitButton } from "@components/paymentForm/SubmitButton";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -25,7 +26,7 @@ const AuthShowcase: React.FC = () => {
   const [checkedPhoneNumbers, setCheckedPhoneNumbers] = React.useState<
     Set<string>
   >(new Set());
-  const [useTestNumber, setUseTestNumber] = useState<boolean>(!IS_PRODUCTION);
+
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       individualCost: "0.00",
@@ -33,6 +34,7 @@ const AuthShowcase: React.FC = () => {
       schoolName: "",
       textMessage: "",
       individualNumber: 1,
+      useTestNumber: !IS_PRODUCTION,
     },
   });
 
@@ -116,7 +118,7 @@ const AuthShowcase: React.FC = () => {
   }, [contacts, checkedPhoneNumbers]);
 
   const onSubmit = React.useCallback(async () => {
-    const recipients: string[] = useTestNumber
+    const recipients: string[] = watchFields.useTestNumber
       ? [TEST_RECIPIENT]
       : Array.from(checkedPhoneNumbers);
 
@@ -126,7 +128,12 @@ const AuthShowcase: React.FC = () => {
       phone: JSON.stringify(recipients),
       message: `${watchFields.textMessage}`,
     });
-  }, [useTestNumber, checkedPhoneNumbers, mutate, watchFields.textMessage]);
+  }, [
+    watchFields.useTestNumber,
+    checkedPhoneNumbers,
+    mutate,
+    watchFields.textMessage,
+  ]);
 
   const handleClearAll = () => {
     setCheckedPhoneNumbers(new Set());
@@ -178,20 +185,12 @@ const AuthShowcase: React.FC = () => {
             <IndividualNumber register={register} />
             <EmailDropdown register={register} />
             <TextMessageBox register={register} />
-            <TestNumberCheckbox
-              useTestNumber={useTestNumber}
-              handleTestNumberChange={() => {
-                setUseTestNumber(!useTestNumber);
-              }}
-            />
+            <TestNumberCheckbox register={register} />
             <>
-              <button
-                className="border-2 border-indigo-400 py-2 px-4 mt-4 rounded-3xl shadow-lg min-w-full disabled:opacity-50"
-                type="submit"
-                disabled={checkedPhoneNumbers.size === 0 && !useTestNumber}
-              >
-                Send
-              </button>
+              <SubmitButton
+                contactsSelected={checkedPhoneNumbers.size > 0}
+                useTestNumber={watchFields.useTestNumber}
+              />
               <SentMessageStatus
                 sentCount={lastSentCount}
                 errorMessage={sendMessageError}
@@ -207,9 +206,7 @@ const AuthShowcase: React.FC = () => {
           clearAllHandler={handleClearAll}
         />
       </section>
-      {!IS_PRODUCTION && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
+      {!IS_PRODUCTION && <ReactQueryDevtools initialIsOpen={false} />}
     </div>
   );
 };

@@ -26,11 +26,6 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
     });
   }, [spreadsheets]);
 
-  if (loading) {
-    // TODO: update loader to be cute
-    return <div>Loading school names ...</div>;
-  }
-
   return (
     <div id="spreadsheet-dropdown" className="w-full md:w-64 mb-5">
       <select
@@ -39,8 +34,16 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
         {...register("schoolName")}
         className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
       >
-        <option value={""}>{NO_SPREADSHEET_OPTION}</option>
-        {options}
+        {loading ? (
+          <option disabled value={""}>
+            Loading school names...
+          </option>
+        ) : (
+          <>
+            <option value={""}>{NO_SPREADSHEET_OPTION}</option>
+            {options}
+          </>
+        )}
       </select>
     </div>
   );
