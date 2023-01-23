@@ -10,7 +10,7 @@ interface IUseContacts {
   error: boolean;
 }
 
-export const useContacts = (schoolName: string): IUseContacts => {
+export const useContacts = (schoolName: string, pendingPaySet: boolean): IUseContacts => {
   const { data: sessionData } = useSession();
 
   const { data: valid } = trpc.useQuery(["checks.validUser"], {
@@ -71,7 +71,7 @@ export const useContacts = (schoolName: string): IUseContacts => {
     });
 
     return result;
-  }, [contactsData, schoolData]);
+  }, [contactsData, schoolData, pendingPaySet]);
 
   return {
     contacts,
