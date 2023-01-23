@@ -8,6 +8,7 @@ import { SpreadsheetDropdown } from "components/spreadsheet/SpreadsheetDropdown"
 import { User } from "types/user";
 import { useContacts } from "components/hooks/useContacts";
 import { useSpreadsheets } from "components/hooks/useSpreadsheets";
+import { useSchoolData } from "components/hooks/useSchoolData";
 import SectionWrapper from "@components/shared/SectionWrapper";
 import { TextMessageBox } from "@components/paymentForm/TextMessageBox";
 import {
@@ -40,15 +41,16 @@ const AuthShowcase: React.FC = () => {
 
   const watchFields = watch();
 
-  const { contacts } = useContacts(watchFields?.schoolName);
-
   const [lastSentCount, setLastSentCount] = useState<number>(0);
 
   const { spreadsheets } = useSpreadsheets();
 
-  const { mutateAsync: mutatePending } = trpc.useMutation([
+  const { mutateAsync: mutatePending, isSuccess: pendingPaySet } = trpc.useMutation([
     "sheets.setPendingPay",
   ]);
+
+  const { contacts } = useContacts(watchFields?.schoolName, pendingPaySet);
+  const { refetch } = useSchoolData(watchFields?.schoolName, pendingPaySet);
 
   const {
     mutate,
@@ -76,6 +78,8 @@ const AuthShowcase: React.FC = () => {
         sheetId: spreadsheetId,
         rows: JSON.stringify(rows),
       });
+
+      refetch()
 
       handleClearAll();
     },

@@ -12,7 +12,7 @@ type Sheet = {
 };
 
 const templateSpreadsheets = new Set([
-  "Fall Schedule",
+  "2022-2023 Schedule",
   "Contacts and Info",
   '"Template" MM/DD/YY',
 ]);

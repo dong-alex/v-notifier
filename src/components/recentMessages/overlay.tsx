@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Transition } from "@headlessui/react";
 
 const Overlay = () => (
   <Transition.Child
