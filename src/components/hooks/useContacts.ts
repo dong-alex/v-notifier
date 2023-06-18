@@ -44,7 +44,7 @@ export const useContacts = (schoolName: string, pendingPaySet: boolean): IUseCon
       let pendingPay;
       let paid;
 
-      if (!phone || !name) {
+      if (!name) {
         return;
       }
 

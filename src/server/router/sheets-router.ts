@@ -102,4 +102,34 @@ export const sheetsRouter = createProtectedRouter()
         throw `Error trying to set pending payment: ${err}`;
       }
     },
+  })
+  .mutation("setPaid", {
+    input: z.object({
+      rows: z.string(), // all row numbers to set the pending pay to 'true'
+      sheetId: z.string(), // sheet id for the specific booking
+    }),
+    resolve: async ({ input }) => {
+      try {
+        const { rows, sheetId } = input;
+
+        // todo: handle proper method for pending pay if more endpoints required to edit sheet
+        const response = await fetch(
+          `${getBaseUrl()}/api/sheet-data/paid`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              rows,
+              sheetId,
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        return data;
+      } catch (err) {
+        throw `Error trying to set paid status: ${err}`;
+      }
+    },
   });
