@@ -5,7 +5,7 @@ interface ISpreadsheetDropdown {
   register: any;
 }
 
-export const NO_SPREADSHEET_OPTION = "No school selected";
+export const NO_SPREADSHEET_OPTION = "No booking selected";
 
 export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
   register,
@@ -31,12 +31,13 @@ export const SpreadsheetDropdown: React.FC<ISpreadsheetDropdown> = ({
       <select
         id="spreadsheet-name"
         defaultValue={""}
+        disabled={loading}
         {...register("schoolName")}
         className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
       >
         {loading ? (
           <option disabled value={""}>
-            Loading school names...
+            Loading previous bookings... ✨
           </option>
         ) : (
           <>

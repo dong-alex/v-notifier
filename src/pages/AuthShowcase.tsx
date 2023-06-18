@@ -107,9 +107,7 @@ const AuthShowcase: React.FC = () => {
       formattedCost = `${totalCost} for ${individualNumber} people`;
     }
 
-    const messagePlaceholder = `Send $${formattedCost} to ${
-      email || "[select an email!]"
-    } for ${schoolName || "recent booking"}`;
+    const messagePlaceholder = `Send $${formattedCost} to ${email} for ${schoolName || "recent booking"}`;
 
     setValue("textMessage", messagePlaceholder);
   }, [
