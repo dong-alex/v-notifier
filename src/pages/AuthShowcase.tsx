@@ -21,6 +21,7 @@ import IndividualNumber from "@components/paymentForm/IndividualNumber";
 import { SentMessageStatus } from "@components/paymentForm/SentMessageStatus";
 import { SubmitButton } from "@components/paymentForm/SubmitButton";
 import TogglePaymentOrPaidMode from "@components/TogglePaymentOrPaidMode";
+import { USERS } from "config/authorizedUsers";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -36,7 +37,7 @@ const AuthShowcase: React.FC = () => {
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       individualCost: "0.00",
-      email: "",
+      email: USERS[0],
       schoolName: "",
       textMessage: "",
       individualNumber: 1,
