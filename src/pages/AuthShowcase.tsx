@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { trpc } from "../utils/trpc";
 import ContactSection from "components/contacts/ContactSection";
 import IndividualCost from "components/paymentForm/IndividualCost";
-import { SpreadsheetDropdown } from "components/spreadsheet/SpreadsheetDropdown";
 import { User } from "types/user";
 import { useContacts } from "components/hooks/useContacts";
 import { useSpreadsheets } from "components/hooks/useSpreadsheets";
@@ -20,7 +19,9 @@ import { RecentMessages } from "@components/recentMessages/RecentMessages";
 import IndividualNumber from "@components/paymentForm/IndividualNumber";
 import { SentMessageStatus } from "@components/paymentForm/SentMessageStatus";
 import { SubmitButton } from "@components/paymentForm/SubmitButton";
-import TogglePaymentOrPaidMode from "@components/TogglePaymentOrPaidMode";
+import { USERS } from "config/authorizedUsers";
+import { SpreadsheetDropdown } from "@components/subheader/SpreadsheetDropdown";
+import TogglePaymentOrPaidMode from "@components/subheader/TogglePaymentOrPaidMode";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
@@ -36,7 +37,7 @@ const AuthShowcase: React.FC = () => {
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       individualCost: "0.00",
-      email: "",
+      email: USERS[0],
       schoolName: "",
       textMessage: "",
       individualNumber: 1,
@@ -106,9 +107,7 @@ const AuthShowcase: React.FC = () => {
       formattedCost = `${totalCost} for ${individualNumber} people`;
     }
 
-    const messagePlaceholder = `Send $${formattedCost} to ${
-      email || "[select an email!]"
-    } for ${schoolName || "recent booking"}`;
+    const messagePlaceholder = `Send $${formattedCost} to ${email} for ${schoolName || "recent booking"}`;
 
     setValue("textMessage", messagePlaceholder);
   }, [
@@ -230,7 +229,7 @@ const AuthShowcase: React.FC = () => {
           contactHandler={handleContactAdd}
         />
         {isPaymentMode ? 
-        <SectionWrapper name="Payment" maxMdWidth="md:w-80">
+        <SectionWrapper name="Send Texts" maxMdWidth="md:w-80">
           <form onSubmit={handleSubmit(onSubmit)}>
             <IndividualCost
               title={watchFields.schoolName}

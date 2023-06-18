@@ -2,7 +2,7 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import { User } from "types/user";
 import { trpc } from "utils/trpc";
-import { NO_SPREADSHEET_OPTION } from "@components/spreadsheet/SpreadsheetDropdown";
+import { NO_SPREADSHEET_OPTION } from "@components/subheader/SpreadsheetDropdown";
 
 interface IUseContacts {
   contacts: User[];

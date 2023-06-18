@@ -16,6 +16,6 @@ export const SubmitButton = ({
     type="submit"
     disabled={!contactsSelected && !useTestNumber}
   >
-    {isPaymentMode ? "Send" : "Submit"}
+    {isPaymentMode ? "Send Texts" : "Set Paid"}
   </button>
 );

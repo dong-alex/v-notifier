@@ -1,6 +1,6 @@
 import React from "react";
 import { Label } from "@components/shared/label";
-import { AUTHORIZED_USERS } from "config/authorizedUsers";
+import { USERS } from "config/authorizedUsers";
 
 interface EmailDropdownProps {
   register: any;
@@ -14,10 +14,7 @@ const EmailDropdown = ({ register }: EmailDropdownProps) => (
       {...register("email")}
       className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
     >
-      <option disabled value="">
-        Choose an email
-      </option>
-      {Array.from(AUTHORIZED_USERS).map((email: string, i) => (
+      {USERS.map((email: string, i) => (
         <option value={email} key={i}>
           {email}
         </option>
