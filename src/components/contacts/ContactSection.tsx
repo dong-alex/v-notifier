@@ -6,7 +6,7 @@ import SectionWrapper from "@components/shared/SectionWrapper";
 interface Props {
   name: string;
   contactArray: Array<User>;
-  contactHandler: (number: string) => void;
+  contactHandler: (name: string, phone?: string) => void;
   clearAllHandler?: () => void;
 }
 

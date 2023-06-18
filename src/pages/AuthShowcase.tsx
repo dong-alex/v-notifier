@@ -20,12 +20,17 @@ import { RecentMessages } from "@components/recentMessages/RecentMessages";
 import IndividualNumber from "@components/paymentForm/IndividualNumber";
 import { SentMessageStatus } from "@components/paymentForm/SentMessageStatus";
 import { SubmitButton } from "@components/paymentForm/SubmitButton";
+import TogglePaymentOrPaidMode from "@components/TogglePaymentOrPaidMode";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
 const AuthShowcase: React.FC = () => {
   const [checkedPhoneNumbers, setCheckedPhoneNumbers] = React.useState<
     Set<string>
+  >(new Set());
+
+  const [checkedNames, setCheckedNames] = React.useState<
+  Set<string>
   >(new Set());
 
   const { register, handleSubmit, watch, setValue } = useForm({
@@ -42,11 +47,16 @@ const AuthShowcase: React.FC = () => {
   const watchFields = watch();
 
   const [lastSentCount, setLastSentCount] = useState<number>(0);
+  const [isPaymentMode, setPaymentMode] = useState<boolean>(true);
 
   const { spreadsheets } = useSpreadsheets();
 
   const { mutateAsync: mutatePending, isSuccess: pendingPaySet } = trpc.useMutation([
     "sheets.setPendingPay",
+  ]);
+
+  const { mutateAsync: mutatePaid, isSuccess: paidSet } = trpc.useMutation([
+    "sheets.setPaid",
   ]);
 
   const { contacts } = useContacts(watchFields?.schoolName, pendingPaySet);
@@ -114,12 +124,18 @@ const AuthShowcase: React.FC = () => {
   }, [spreadsheets, watchFields.schoolName]);
 
   const filteredContacts: User[] = React.useMemo(() => {
-    return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone));
-  }, [contacts, checkedPhoneNumbers]);
+    if (!isPaymentMode) {
+      return contacts.filter((c) => !checkedNames.has(c.name));
+    }
+    return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone) && c.phone);
+  }, [contacts, checkedPhoneNumbers, isPaymentMode, checkedNames]);
 
   const selectedContacts: User[] = React.useMemo(() => {
+    if (!isPaymentMode) {
+      return contacts.filter((c) => checkedNames.has(c.name));
+    }
     return contacts.filter((c) => checkedPhoneNumbers.has(c.phone));
-  }, [contacts, checkedPhoneNumbers]);
+  }, [contacts, checkedPhoneNumbers, checkedNames, isPaymentMode]);
 
   const onSubmit = React.useCallback(async () => {
     const recipients: string[] = watchFields.useTestNumber
@@ -141,36 +157,70 @@ const AuthShowcase: React.FC = () => {
 
   const handleClearAll = () => {
     setCheckedPhoneNumbers(new Set());
+    setCheckedNames(new Set())
   };
 
   const handleContactRemove = React.useCallback(
-    (phoneNumber: string) => {
-      if (!checkedPhoneNumbers.has(phoneNumber)) {
-        return;
+    (name: string, phone?: string) => {
+      if (phone) {
+        checkedPhoneNumbers.delete(phone)
+        setCheckedPhoneNumbers(new Set(checkedPhoneNumbers));
       }
-
-      const numbers: string[] = Array.from(checkedPhoneNumbers).filter(
-        (n) => n !== phoneNumber,
-      );
-
-      setCheckedPhoneNumbers(new Set(numbers));
+      checkedNames.delete(name)
+      setCheckedNames(new Set(checkedNames))
     },
-    [checkedPhoneNumbers],
+    [checkedPhoneNumbers, checkedNames],
   );
 
   const handleContactAdd = React.useCallback(
-    (phoneNumber: string) => {
-      setCheckedPhoneNumbers(
-        new Set([...Array.from(checkedPhoneNumbers), phoneNumber]),
-      );
+    (name: string, phone?: string) => {
+      if (phone) {
+        setCheckedPhoneNumbers(
+          new Set([...Array.from(checkedPhoneNumbers), phone]),
+        );
+      }
+      setCheckedNames(new Set([...Array.from(checkedNames), name]))
     },
-    [checkedPhoneNumbers],
+    [checkedPhoneNumbers, checkedNames],
   );
+
+  const onPaidSubmit = React.useCallback(async () => {
+     // set paid for the checked values
+     // refactor duplication with pending pay set
+     const rows: string[] = [];
+
+     selectedContacts.forEach((sc) => {
+       if (!sc.row) {
+         return;
+       }
+
+       rows.push(sc.row);
+     });
+
+     if (!spreadsheetId) {
+       handleClearAll();
+       return;
+     }
+
+     await mutatePaid({
+       sheetId: spreadsheetId,
+       rows: JSON.stringify(rows),
+     });
+
+     refetch()
+
+     handleClearAll();
+  }, [
+    selectedContacts
+  ]);
 
   return (
     <div className="flex-col items-center p-3 md:p-0 md:items-start">
       <section className="flex w-full flex-col md:flex-row md:justify-between">
-        <SpreadsheetDropdown register={register} />
+        <div className="inline-flex flex-row justify-between">
+          <SpreadsheetDropdown register={register} />
+          {watchFields.schoolName && <TogglePaymentOrPaidMode isPaymentMode={isPaymentMode} setPaymentMode={setPaymentMode} handleClearAll={handleClearAll} /> }
+        </div>
         <RecentMessages />
       </section>
       <section className="flex flex-col md:flex-row">
@@ -179,6 +229,7 @@ const AuthShowcase: React.FC = () => {
           contactArray={filteredContacts}
           contactHandler={handleContactAdd}
         />
+        {isPaymentMode ? 
         <SectionWrapper name="Payment" maxMdWidth="md:w-80">
           <form onSubmit={handleSubmit(onSubmit)}>
             <IndividualCost
@@ -202,9 +253,16 @@ const AuthShowcase: React.FC = () => {
               />
             </>
           </form>
+        </SectionWrapper> : 
+        <SectionWrapper name="Set Paid 💸" maxMdWidth="md:w-80">
+          <form onSubmit={handleSubmit(onPaidSubmit)}>
+            {"Set currently selected users paid status to true"}
+            <SubmitButton contactsSelected={checkedPhoneNumbers.size > 0 || checkedNames.size > 0} isPaymentMode={isPaymentMode}/>
+          </form>
         </SectionWrapper>
+        }
         <ContactSection
-          name="Recipients"
+          name="Selected"
           contactArray={selectedContacts}
           contactHandler={handleContactRemove}
           clearAllHandler={handleClearAll}

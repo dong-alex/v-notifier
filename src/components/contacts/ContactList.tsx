@@ -3,7 +3,7 @@ import { User } from "types/user";
 
 interface Props {
   contactArray: Array<User>;
-  contactHandler: (number: string) => void;
+  contactHandler: (name: string, phone?: string) => void;
 }
 
 const getBackgroundColour = (pendingPay = false, paid = false): string => {
@@ -13,15 +13,15 @@ const getBackgroundColour = (pendingPay = false, paid = false): string => {
   return pendingPay ? "bg-indigo-100" : "bg-white";
 };
 
-const GetContactButton = (user: User, handler: (number: string) => void) => {
+const GetContactButton = (user: User, handler: (name: string, phone?: string) => void) => {
   const { name, phone, pendingPay, paid } = user;
   const backgroundColour = getBackgroundColour(pendingPay, paid);
   return (
     <button
-      key={user.name}
+      key={name}
       className={`w-full py-2.5 px-5 mx-1 my-1 text-sm font-medium focus:outline-none ${backgroundColour} rounded-lg border border-gray-200 hover:border-sky-400 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200`}
       onClick={() => {
-        handler(phone);
+        handler(name, phone);
       }}
     >
       <span className="text-blue-500">{name}</span>

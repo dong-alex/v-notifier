@@ -17,14 +17,14 @@ export const convertContacts = (data: Array<string[]>): User[] => {
   data?.forEach((values: Array<string>) => {
     const [name, phone] = values;
 
-    if (!phone || !name) {
+    if (!name) {
       return;
     }
 
     // TODO: handle formatting of the phone numbers
     results.push({
       name: name,
-      phone: phone,
+      phone: phone || "",
     });
   });
 
