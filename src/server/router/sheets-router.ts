@@ -46,30 +46,14 @@ export const sheetsRouter = createProtectedRouter()
         const response = await fetch(
           `${getBaseUrl()}/api/school-data?schoolName=${input}`,
         );
-        const data = await response.json();
+        const { attendanceData, costData } = await response.json();
 
-        return convertSchoolData(data);
+        const bookingAttendance = convertSchoolData(attendanceData);
+        const bookingCost = costData.pop() || [];
+
+        return { bookingAttendance, bookingCost };
       } catch (err) {
         throw `Error trying to getSchoolData: ${err}`;
-      }
-    },
-  })
-  .query("getUnitCost", {
-    input: z.string(),
-    output: z.string().array(),
-    resolve: async ({ input }) => {
-      try {
-        const response = await fetch(
-          `${getBaseUrl()}/api/school-data/unit-cost?schoolName=${input}`,
-        );
-
-        const data: string[][] = await response.json();
-
-        const results = data.pop();
-
-        return results ?? [];
-      } catch (err) {
-        throw `Error trying to getUnitCost: ${err}`;
       }
     },
   })
@@ -113,17 +97,14 @@ export const sheetsRouter = createProtectedRouter()
         const { rows, sheetId } = input;
 
         // todo: handle proper method for pending pay if more endpoints required to edit sheet
-        const response = await fetch(
-          `${getBaseUrl()}/api/sheet-data/paid`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              rows,
-              sheetId,
-            }),
-          },
-        );
+        const response = await fetch(`${getBaseUrl()}/api/sheet-data/paid`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rows,
+            sheetId,
+          }),
+        });
 
         const data = await response.json();
 

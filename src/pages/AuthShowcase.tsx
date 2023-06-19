@@ -30,9 +30,9 @@ const AuthShowcase: React.FC = () => {
     Set<string>
   >(new Set());
 
-  const [checkedNames, setCheckedNames] = React.useState<
-  Set<string>
-  >(new Set());
+  const [checkedNames, setCheckedNames] = React.useState<Set<string>>(
+    new Set(),
+  );
 
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
@@ -52,16 +52,18 @@ const AuthShowcase: React.FC = () => {
 
   const { spreadsheets } = useSpreadsheets();
 
-  const { mutateAsync: mutatePending, isSuccess: pendingPaySet } = trpc.useMutation([
-    "sheets.setPendingPay",
-  ]);
+  const { mutateAsync: mutatePending, isSuccess: pendingPaySet } =
+    trpc.useMutation(["sheets.setPendingPay"]);
 
   const { mutateAsync: mutatePaid, isSuccess: paidSet } = trpc.useMutation([
     "sheets.setPaid",
   ]);
 
   const { contacts } = useContacts(watchFields?.schoolName, pendingPaySet);
-  const { refetch } = useSchoolData(watchFields?.schoolName, pendingPaySet);
+  const { schoolData, refetch } = useSchoolData(
+    watchFields?.schoolName,
+    pendingPaySet,
+  );
 
   const {
     mutate,
@@ -90,7 +92,7 @@ const AuthShowcase: React.FC = () => {
         rows: JSON.stringify(rows),
       });
 
-      refetch()
+      refetch();
 
       handleClearAll();
     },
@@ -107,7 +109,9 @@ const AuthShowcase: React.FC = () => {
       formattedCost = `${totalCost} for ${individualNumber} people`;
     }
 
-    const messagePlaceholder = `Send $${formattedCost} to ${email} for ${schoolName || "recent booking"}`;
+    const messagePlaceholder = `Send $${formattedCost} to ${email} for ${
+      schoolName || "recent booking"
+    }`;
 
     setValue("textMessage", messagePlaceholder);
   }, [
@@ -124,7 +128,7 @@ const AuthShowcase: React.FC = () => {
 
   const filteredContacts: User[] = React.useMemo(() => {
     if (!isPaymentMode) {
-      return contacts.filter((c) => !checkedNames.has(c.name));
+      return contacts.filter((c) => !checkedNames.has(c.name) && !c?.paid);
     }
     return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone) && c.phone);
   }, [contacts, checkedPhoneNumbers, isPaymentMode, checkedNames]);
@@ -156,17 +160,17 @@ const AuthShowcase: React.FC = () => {
 
   const handleClearAll = () => {
     setCheckedPhoneNumbers(new Set());
-    setCheckedNames(new Set())
+    setCheckedNames(new Set());
   };
 
   const handleContactRemove = React.useCallback(
     (name: string, phone?: string) => {
       if (phone) {
-        checkedPhoneNumbers.delete(phone)
+        checkedPhoneNumbers.delete(phone);
         setCheckedPhoneNumbers(new Set(checkedPhoneNumbers));
       }
-      checkedNames.delete(name)
-      setCheckedNames(new Set(checkedNames))
+      checkedNames.delete(name);
+      setCheckedNames(new Set(checkedNames));
     },
     [checkedPhoneNumbers, checkedNames],
   );
@@ -178,47 +182,51 @@ const AuthShowcase: React.FC = () => {
           new Set([...Array.from(checkedPhoneNumbers), phone]),
         );
       }
-      setCheckedNames(new Set([...Array.from(checkedNames), name]))
+      setCheckedNames(new Set([...Array.from(checkedNames), name]));
     },
     [checkedPhoneNumbers, checkedNames],
   );
 
   const onPaidSubmit = React.useCallback(async () => {
-     // set paid for the checked values
-     // refactor duplication with pending pay set
-     const rows: string[] = [];
+    // set paid for the checked values
+    // refactor duplication with pending pay set
+    const rows: string[] = [];
 
-     selectedContacts.forEach((sc) => {
-       if (!sc.row) {
-         return;
-       }
+    selectedContacts.forEach((sc) => {
+      if (!sc.row) {
+        return;
+      }
 
-       rows.push(sc.row);
-     });
+      rows.push(sc.row);
+    });
 
-     if (!spreadsheetId) {
-       handleClearAll();
-       return;
-     }
+    if (!spreadsheetId) {
+      handleClearAll();
+      return;
+    }
 
-     await mutatePaid({
-       sheetId: spreadsheetId,
-       rows: JSON.stringify(rows),
-     });
+    await mutatePaid({
+      sheetId: spreadsheetId,
+      rows: JSON.stringify(rows),
+    });
 
-     refetch()
+    refetch();
 
-     handleClearAll();
-  }, [
-    selectedContacts
-  ]);
+    handleClearAll();
+  }, [selectedContacts]);
 
   return (
     <div className="flex-col items-center p-3 md:p-0 md:items-start">
       <section className="flex w-full flex-col md:flex-row md:justify-between">
         <div className="inline-flex flex-row justify-between">
           <SpreadsheetDropdown register={register} />
-          {watchFields.schoolName && <TogglePaymentOrPaidMode isPaymentMode={isPaymentMode} setPaymentMode={setPaymentMode} handleClearAll={handleClearAll} /> }
+          {watchFields.schoolName && (
+            <TogglePaymentOrPaidMode
+              isPaymentMode={isPaymentMode}
+              setPaymentMode={setPaymentMode}
+              handleClearAll={handleClearAll}
+            />
+          )}
         </div>
         <RecentMessages />
       </section>
@@ -228,38 +236,45 @@ const AuthShowcase: React.FC = () => {
           contactArray={filteredContacts}
           contactHandler={handleContactAdd}
         />
-        {isPaymentMode ? 
-        <SectionWrapper name="Send Texts" maxMdWidth="md:w-80">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <IndividualCost
-              title={watchFields.schoolName}
-              setValue={setValue}
-              register={register}
-            />
-            <IndividualNumber register={register} />
-            <EmailDropdown register={register} />
-            <TextMessageBox register={register} />
-            <TestNumberCheckbox register={register} />
-            <>
+        {isPaymentMode ? (
+          <SectionWrapper name="Send Texts" maxMdWidth="md:w-80">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <IndividualCost
+                title={watchFields.schoolName}
+                data={schoolData?.bookingCost}
+                setValue={setValue}
+                register={register}
+              />
+              <IndividualNumber register={register} />
+              <EmailDropdown register={register} />
+              <TextMessageBox register={register} />
+              <TestNumberCheckbox register={register} />
+              <>
+                <SubmitButton
+                  contactsSelected={checkedPhoneNumbers.size > 0}
+                  useTestNumber={watchFields.useTestNumber}
+                />
+                <SentMessageStatus
+                  sentCount={lastSentCount}
+                  errorMessage={sendMessageError}
+                  isSuccess={isSuccess}
+                />
+              </>
+            </form>
+          </SectionWrapper>
+        ) : (
+          <SectionWrapper name="Set Paid 💸" maxMdWidth="md:w-80">
+            <form onSubmit={handleSubmit(onPaidSubmit)}>
+              {"Set currently selected users paid status to true"}
               <SubmitButton
-                contactsSelected={checkedPhoneNumbers.size > 0}
-                useTestNumber={watchFields.useTestNumber}
+                contactsSelected={
+                  checkedPhoneNumbers.size > 0 || checkedNames.size > 0
+                }
+                isPaymentMode={isPaymentMode}
               />
-              <SentMessageStatus
-                sentCount={lastSentCount}
-                errorMessage={sendMessageError}
-                isSuccess={isSuccess}
-              />
-            </>
-          </form>
-        </SectionWrapper> : 
-        <SectionWrapper name="Set Paid 💸" maxMdWidth="md:w-80">
-          <form onSubmit={handleSubmit(onPaidSubmit)}>
-            {"Set currently selected users paid status to true"}
-            <SubmitButton contactsSelected={checkedPhoneNumbers.size > 0 || checkedNames.size > 0} isPaymentMode={isPaymentMode}/>
-          </form>
-        </SectionWrapper>
-        }
+            </form>
+          </SectionWrapper>
+        )}
         <ContactSection
           name="Selected"
           contactArray={selectedContacts}

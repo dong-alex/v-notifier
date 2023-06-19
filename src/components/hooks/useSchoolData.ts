@@ -17,12 +17,14 @@ export const useSchoolData = (schoolName: string, pendingPaySet: boolean) => {
     enabled: !!sessionData?.user,
   });
 
-  const { data: schoolData, isLoading: schoolDataLoading, isError: error, refetch } = trpc.useQuery(
-    ["sheets.getSchoolData", schoolName],
-    {
-      enabled: !!valid && !!schoolName && schoolName !== NO_SPREADSHEET_OPTION
-    },
-  );
+  const {
+    data: schoolData,
+    isLoading: schoolDataLoading,
+    isError: error,
+    refetch,
+  } = trpc.useQuery(["sheets.getSchoolData", schoolName], {
+    enabled: !!valid && !!schoolName && schoolName !== NO_SPREADSHEET_OPTION,
+  });
 
   return {
     schoolData,
