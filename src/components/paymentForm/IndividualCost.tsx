@@ -7,20 +7,17 @@ interface Props {
   title: string;
   register: any;
   setValue: any;
+  data: string;
 }
 
-const IndividualCost = ({ title, register, setValue }: Props) => {
-  const { data, error } = trpc.useQuery(["sheets.getUnitCost", title], {
-    enabled: !!title,
-  });
-
+const IndividualCost = ({ title, register, setValue, data }: Props) => {
   useEffect(() => {
-    if (error || !data || data?.length === 0) {
+    if (!data || data?.length === 0) {
       setValue("individualCost", "0.00");
     } else {
       setValue("individualCost", data[0]?.slice(1) ?? "0.00");
     }
-  }, [data, title, error]);
+  }, [data, title]);
 
   return (
     <div className="my-5">

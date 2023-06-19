@@ -49,7 +49,7 @@ export const useContacts = (schoolName: string, pendingPaySet: boolean): IUseCon
       }
 
       if (schoolData) {
-        const [paymentData, attendance] = schoolData;
+        const [paymentData, attendance] = schoolData?.bookingAttendance;
         if (!attendance.has(name)) {
           return;
         }

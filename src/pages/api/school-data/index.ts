@@ -3,6 +3,11 @@ import spreadsheetConfig from "../../../config/spreadsheet";
 import { NextApiRequest, NextApiResponse } from "next";
 import { env } from "../../../env/server.mjs";
 
+enum BOOKING_VALUE_RANGE {
+  ATTENDANCE = 0,
+  COST = 1, 
+}
+
 const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const client = new google.auth.JWT(
@@ -22,20 +27,24 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const opt = {
         spreadsheetId: env.GOOGLE_SHEETS_ID,
-        range: `${req.query?.schoolName}!A7:F`,
+        ranges: [`${req.query?.schoolName}!A7:F`, `${req.query?.schoolName}!J10`],
       };
 
       console.log("Attempting to retrieve school sheet values");
-      const response = await sheetsAPI.spreadsheets.values.get(opt);
+      const response = await sheetsAPI.spreadsheets.values.batchGet(opt);
 
       // initial row (header)
       let row = spreadsheetConfig.INITIAL_ROW;
 
-      const r = response.data.values?.map((v) => {
+      const valueRangeData = response?.data?.valueRanges
+
+      const attendanceData = valueRangeData?.[BOOKING_VALUE_RANGE.ATTENDANCE]?.values?.map((v) => {
         return [row++, ...v];
       });
 
-      return res.status(200).send(r);
+      const costData = valueRangeData?.[BOOKING_VALUE_RANGE.COST]?.values
+
+      return res.status(200).send({attendanceData, costData});
     });
   } catch (err) {
     return res.status(500).send(err);

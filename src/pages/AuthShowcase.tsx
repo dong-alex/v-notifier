@@ -61,7 +61,7 @@ const AuthShowcase: React.FC = () => {
   ]);
 
   const { contacts } = useContacts(watchFields?.schoolName, pendingPaySet);
-  const { refetch } = useSchoolData(watchFields?.schoolName, pendingPaySet);
+  const { schoolData, refetch } = useSchoolData(watchFields?.schoolName, pendingPaySet);
 
   const {
     mutate,
@@ -124,7 +124,7 @@ const AuthShowcase: React.FC = () => {
 
   const filteredContacts: User[] = React.useMemo(() => {
     if (!isPaymentMode) {
-      return contacts.filter((c) => !checkedNames.has(c.name));
+      return contacts.filter((c) => !checkedNames.has(c.name) && !c?.paid);
     }
     return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone) && c.phone);
   }, [contacts, checkedPhoneNumbers, isPaymentMode, checkedNames]);
@@ -233,6 +233,7 @@ const AuthShowcase: React.FC = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <IndividualCost
               title={watchFields.schoolName}
+              data={schoolData?.bookingCost}
               setValue={setValue}
               register={register}
             />
