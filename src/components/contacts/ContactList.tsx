@@ -13,7 +13,10 @@ const getBackgroundColour = (pendingPay = false, paid = false): string => {
   return pendingPay ? "bg-indigo-100" : "bg-white";
 };
 
-const GetContactButton = (user: User, handler: (name: string, phone?: string) => void) => {
+const GetContactButton = (
+  user: User,
+  handler: (name: string, phone?: string) => void,
+) => {
   const { name, phone, pendingPay, paid } = user;
   const backgroundColour = getBackgroundColour(pendingPay, paid);
   return (
