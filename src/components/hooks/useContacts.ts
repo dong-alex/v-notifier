@@ -52,7 +52,7 @@ export const useContacts = (
       }
 
       if (schoolData) {
-        const [paymentData, attendance] = schoolData?.bookingAttendance;
+        const [paymentData, attendance] = schoolData.bookingAttendance;
         if (!attendance.has(name)) {
           return;
         }
