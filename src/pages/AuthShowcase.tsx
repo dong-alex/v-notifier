@@ -62,7 +62,6 @@ const AuthShowcase: React.FC = () => {
   const { contacts } = useContacts(watchFields?.schoolName, pendingPaySet);
   const { schoolData, refetch } = useSchoolData(
     watchFields?.schoolName,
-    pendingPaySet,
   );
 
   const {mutateAsync: mutateAddRows } = trpc.useMutation(["sheets.addAttendingRows"], {

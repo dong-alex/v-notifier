@@ -1,16 +1,9 @@
-import React from "react";
+
 import { useSession } from "next-auth/react";
-import { User } from "types/user";
 import { trpc } from "utils/trpc";
 import { NO_SPREADSHEET_OPTION } from "@components/subheader/SpreadsheetDropdown";
 
-interface IUseContacts {
-  contacts: User[];
-  loading: boolean;
-  error: boolean;
-}
-
-export const useSchoolData = (schoolName: string, pendingPaySet: boolean) => {
+export const useSchoolData = (schoolName: string) => {
   const { data: sessionData } = useSession();
 
   const { data: valid } = trpc.useQuery(["checks.validUser"], {
