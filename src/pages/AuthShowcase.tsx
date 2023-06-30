@@ -65,6 +65,12 @@ const AuthShowcase: React.FC = () => {
     pendingPaySet,
   );
 
+  const {mutateAsync: mutateAddRows } = trpc.useMutation(["sheets.addAttendingRows"], {
+    async onSuccess() {
+      refetch();
+    },
+  });
+
   const {
     mutate,
     error: sendMessageError,
@@ -121,6 +127,19 @@ const AuthShowcase: React.FC = () => {
     watchFields.individualNumber,
   ]);
 
+  useEffect(() => {
+    const { bookingFullAttendance = [], bookingAttendanceLock } = schoolData || {}
+    if (bookingAttendanceLock && bookingFullAttendance?.length > 0) {
+      mutateAddRows({
+        schoolName: watchFields.schoolName,
+        names: JSON.stringify(schoolData?.bookingFullAttendance),
+      })
+    }
+  }, [
+    watchFields.schoolName,
+    schoolData?.bookingFullAttendance,
+  ])
+
   const spreadsheetId = React.useMemo(() => {
     return spreadsheets.find((s) => s.title === watchFields.schoolName)
       ?.sheetId;
@@ -130,14 +149,14 @@ const AuthShowcase: React.FC = () => {
     if (!isPaymentMode) {
       return contacts.filter((c) => !checkedNames.has(c.name) && !c?.paid);
     }
-    return contacts.filter((c) => !checkedPhoneNumbers.has(c.phone) && c.phone);
-  }, [contacts, checkedPhoneNumbers, isPaymentMode, checkedNames]);
+    return contacts.filter((c) => c.phone && !checkedPhoneNumbers.has(c?.phone));
+  }, [contacts, checkedPhoneNumbers, isPaymentMode, checkedNames, schoolData]);
 
   const selectedContacts: User[] = React.useMemo(() => {
     if (!isPaymentMode) {
       return contacts.filter((c) => checkedNames.has(c.name));
     }
-    return contacts.filter((c) => checkedPhoneNumbers.has(c.phone));
+    return contacts.filter((c) => c?.phone && checkedPhoneNumbers.has(c?.phone));
   }, [contacts, checkedPhoneNumbers, checkedNames, isPaymentMode]);
 
   const onSubmit = React.useCallback(async () => {

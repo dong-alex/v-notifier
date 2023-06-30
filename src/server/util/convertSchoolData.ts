@@ -1,3 +1,5 @@
+import { convertStringToBoolean } from "./convertStringToBoolean";
+
 interface SchoolData {
   name: string;
   asked?: boolean;
@@ -14,10 +16,6 @@ interface SchoolDatum {
     paid: boolean;
   };
 }
-
-const convertStringToBoolean = (boolString = "FALSE") => {
-  return boolString === "TRUE" ? true : false;
-};
 
 export const convertSchoolData = (
   data: Array<string[]>,
@@ -49,4 +47,25 @@ export const convertSchoolData = (
   });
 
   return [results, attendingSet];
+};
+
+export const convertFullAttendanceData = (
+  bookingAttendanceData: Set<string>,
+  fullAttendanceData: Array<string[]>,
+): string[] => {
+  const fullAttendingList: Array<string> = []
+
+  if (!fullAttendanceData || fullAttendanceData?.length < 1) {
+    return fullAttendingList;
+  }
+
+  fullAttendanceData.forEach((row: string[]) => {
+    row.forEach((name) => {
+      if (!bookingAttendanceData.has(name) && name.length > 0) {
+        fullAttendingList.push(name)
+      }
+    })
+  });
+
+  return fullAttendingList;
 };

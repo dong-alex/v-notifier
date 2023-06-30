@@ -1,6 +1,6 @@
 export interface User {
   name: string;
-  phone: string;
+  phone?: string;
   pendingPay?: boolean;
   paid?: boolean;
   row?: string;
