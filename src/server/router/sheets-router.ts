@@ -3,7 +3,8 @@ import { createProtectedRouter } from "./context";
 import { getBaseUrl } from "../../pages/_app";
 import { convertSheetNames } from "../util/convertSheetNames";
 import { convertContacts, User } from "../util/convertContacts";
-import { convertSchoolData } from "../util/convertSchoolData";
+import { convertSchoolData, convertFullAttendanceData } from "../util/convertSchoolData";
+import { convertStringToBoolean } from "server/util/convertStringToBoolean";
 
 export const sheetsRouter = createProtectedRouter()
   .query("getContacts", {
@@ -46,14 +47,49 @@ export const sheetsRouter = createProtectedRouter()
         const response = await fetch(
           `${getBaseUrl()}/api/school-data?schoolName=${input}`,
         );
-        const { attendanceData, costData } = await response.json();
+        const { attendanceData, costData, fullAttendanceData, attendanceLock } = await response.json();
 
         const bookingAttendance = convertSchoolData(attendanceData);
         const bookingCost = costData.pop() || [];
+        const bookingFullAttendance = convertFullAttendanceData(bookingAttendance?.[1], fullAttendanceData)
+        const bookingAttendanceLock = convertStringToBoolean(attendanceLock.pop())
 
-        return { bookingAttendance, bookingCost };
+        return {
+          bookingAttendance, 
+          bookingCost,
+          bookingFullAttendance,
+          bookingAttendanceLock
+        };
       } catch (err) {
         throw `Error trying to getSchoolData: ${err}`;
+      }
+    },
+  })
+  .mutation("addAttendingRows", {
+    input: z.object({
+      names: z.string(), // names to add to end of sheet
+      schoolName: z.string(), // name for the specific booking
+    }),
+    resolve: async ({ input }) => {
+      try {
+        const { names, schoolName } = input;
+        const response = await fetch(
+          `${getBaseUrl()}/api/sheet-data/add-attending-rows`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              names,
+              schoolName,
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        return data;
+      } catch (err) {
+        throw `Error trying to add additional rows: ${err}`;
       }
     },
   })

@@ -41,6 +41,7 @@ export const useContacts = (
     }
 
     const result: User[] = [];
+    const nameSet = new Set()
 
     contactsData.forEach(({ name, phone }) => {
       let row;
@@ -64,6 +65,8 @@ export const useContacts = (
         }
       }
 
+      nameSet.add(name)
+
       result.push({
         name,
         phone,
@@ -72,6 +75,20 @@ export const useContacts = (
         row,
       });
     });
+
+    if (schoolData) {
+      const [paymentData, ] = schoolData.bookingAttendance;
+
+      for (const name in paymentData) {
+        if (name && !nameSet.has(name)) {
+          result.push({
+            name,
+            paid: paymentData[name]?.paid,
+            row: paymentData[name]?.row,
+          })
+        }
+      }
+    }
 
     return result;
   }, [contactsData, schoolData, pendingPaySet]);

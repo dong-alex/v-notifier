@@ -5,7 +5,9 @@ import { env } from "../../../env/server.mjs";
 
 enum BOOKING_VALUE_RANGE {
   ATTENDANCE = 0,
-  COST = 1,
+  COST = 1, 
+  FULL_ATTENDANCE = 2,
+  ATTENDANCE_LOCK = 3,
 }
 
 const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -30,6 +32,8 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
         ranges: [
           `${req.query?.schoolName}!A7:F`,
           `${req.query?.schoolName}!J10`,
+          `${req.query?.schoolName}!I35:M43`,
+          `${req.query?.schoolName}!M1`,
         ],
       };
 
@@ -49,7 +53,16 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const costData = valueRangeData?.[BOOKING_VALUE_RANGE.COST]?.values;
 
-      return res.status(200).send({ attendanceData, costData });
+      const fullAttendanceData = valueRangeData?.[BOOKING_VALUE_RANGE.FULL_ATTENDANCE]?.values
+
+      const attendanceLock = valueRangeData?.[BOOKING_VALUE_RANGE.ATTENDANCE_LOCK]?.values;
+
+      return res.status(200).send({
+        attendanceData,
+        costData,
+        fullAttendanceData,
+        attendanceLock,
+      });
     });
   } catch (err) {
     return res.status(500).send(err);
