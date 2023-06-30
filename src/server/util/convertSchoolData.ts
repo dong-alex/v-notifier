@@ -52,7 +52,7 @@ export const convertSchoolData = (
 export const convertFullAttendanceData = (
   bookingAttendanceData: Set<string>,
   fullAttendanceData: Array<string[]>,
-): String[] => {
+): string[] => {
   const fullAttendingList: Array<string> = []
 
   if (!fullAttendanceData || fullAttendanceData?.length < 1) {
