@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import SectionHeader from "@components/SectionHeader";
 import { trpc } from "utils/trpc";
@@ -6,13 +6,17 @@ import MessageList from "./messageList";
 import Overlay from "./overlay";
 
 export const RecentMessages = () => {
+  const [showRecentMessages, setShowRecentMessages] = useState<boolean>(false);
+
   const { data: messages, isLoading: loading } = trpc.useQuery([
     "messages.getMessages",
-  ]);
-  const { data: contacts } = trpc.useQuery(["sheets.getContacts"]);
+  ], {
+    enabled: showRecentMessages
+  });
 
-  const [showRecentMessages, setShowRecentMessages] =
-    React.useState<boolean>(false);
+  const { data: contacts } = trpc.useQuery(["sheets.getContacts"],{
+    enabled: showRecentMessages
+  });
 
   // maps the 'from' to the user
   const responders = React.useMemo(() => {
@@ -42,7 +46,7 @@ export const RecentMessages = () => {
       >
         {loading ? "Loading messages..." : "Messages"}
       </button>
-      <Transition.Root show={showRecentMessages} as={Fragment}>
+      <Transition.Root show={showRecentMessages && !loading} as={Fragment}>
         <Dialog
           as="div"
           className="relative z-10"
