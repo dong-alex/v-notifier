@@ -59,8 +59,8 @@ const AuthShowcase: React.FC = () => {
     "sheets.setPaid",
   ]);
 
-  const { contacts } = useContacts(watchFields?.schoolName, pendingPaySet);
-  const { schoolData, refetch } = useSchoolData(
+  const { contacts, loading: loadingContacts } = useContacts(watchFields?.schoolName, pendingPaySet);
+  const { schoolData, refetch, schoolDataLoading } = useSchoolData(
     watchFields?.schoolName,
   );
 
@@ -253,6 +253,7 @@ const AuthShowcase: React.FC = () => {
           name="Contacts"
           contactArray={filteredContacts}
           contactHandler={handleContactAdd}
+          isLoading={loadingContacts || schoolDataLoading}
         />
         {isPaymentMode ? (
           <SectionWrapper name="Send Texts" maxMdWidth="md:w-80">
