@@ -2,12 +2,14 @@ import React from "react";
 import { User } from "types/user";
 import ContactList from "./ContactList";
 import SectionWrapper from "@components/shared/SectionWrapper";
+import Loader from "@components/shared/Loader";
 
 interface Props {
   name: string;
   contactArray: Array<User>;
   contactHandler: (name: string, phone?: string) => void;
   clearAllHandler?: () => void;
+  isLoading?: boolean;
 }
 
 const ContactSection = ({
@@ -15,13 +17,15 @@ const ContactSection = ({
   contactArray,
   contactHandler,
   clearAllHandler,
+  isLoading,
 }: Props) => {
   return (
     <SectionWrapper name={name}>
-      <ContactList
+      {isLoading ? <div className="pt-32"><Loader /></div> : 
+        <ContactList
         contactArray={contactArray}
-        contactHandler={contactHandler}
-      />
+        contactHandler={contactHandler}/>
+      }
       {clearAllHandler && contactArray.length > 0 && (
         <div className="flex justify-end">
           <button
