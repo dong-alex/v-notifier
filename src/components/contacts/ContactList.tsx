@@ -4,6 +4,7 @@ import { User } from "types/user";
 interface Props {
   contactArray: Array<User>;
   contactHandler: (name: string, phone?: string) => void;
+  type: "selected" | "all"
 }
 
 const getBackgroundColour = (pendingPay = false, paid = false): string => {
@@ -22,7 +23,7 @@ const GetContactButton = (
   return (
     <button
       key={name}
-      className={`w-full py-2.5 px-5 mx-1 my-1 text-sm font-medium focus:outline-none ${backgroundColour} rounded-lg border border-gray-200 hover:border-sky-400 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200`}
+      className={`w-full py-2.5 my-1 text-sm font-medium focus:outline-none ${backgroundColour} rounded-lg border border-gray-200 hover:border-sky-400 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-200`}
       onClick={() => {
         handler(name, phone);
       }}
@@ -32,15 +33,15 @@ const GetContactButton = (
   );
 };
 
-const ContactList = ({ contactArray, contactHandler }: Props) => {
+const ContactList = ({ contactArray, contactHandler, type }: Props) => {
   return (
-    <div className="overflow-y-auto overflow-x-hidden my-4 mr-8 max-h-96 p-2">
+    <div className="overflow-y-auto overflow-x-hidden max-h-96">
       {contactArray.length > 0 ? (
         contactArray.map((user) => {
           return GetContactButton(user, contactHandler);
         })
       ) : (
-        <span className="text-lg">🤔 No contacts currently available </span>
+        <span className="text-lg flex justify-center text-purple-400">{`No contacts ${type == "selected" ? 'selected' : 'available'}` }</span>
       )}
     </div>
   );
