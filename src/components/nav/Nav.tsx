@@ -12,7 +12,7 @@ const Nav = () => {
         <Logo />
         <div>
           {sessionData && (
-              <span className="mr-4">{`👋 Welcome ${sessionData.user?.name || sessionData.user?.email}!`}</span>
+              <span className="mr-4 hidden md:inline">{`👋 Welcome ${sessionData.user?.name || sessionData.user?.email}!`}</span>
             )}
           <button
             type="button"
