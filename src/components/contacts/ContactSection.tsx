@@ -10,6 +10,7 @@ interface Props {
   contactHandler: (name: string, phone?: string) => void;
   clearAllHandler?: () => void;
   isLoading?: boolean;
+  type?: "all" | "selected"
 }
 
 const ContactSection = ({
@@ -18,16 +19,18 @@ const ContactSection = ({
   contactHandler,
   clearAllHandler,
   isLoading,
+  type = 'all'
 }: Props) => {
   return (
     <SectionWrapper name={name}>
-      {isLoading ? <div className="pt-32"><Loader /></div> : 
+      {isLoading && type != "selected" ? <div className="my-8"><Loader /></div> : 
         <ContactList
         contactArray={contactArray}
-        contactHandler={contactHandler}/>
+        contactHandler={contactHandler}
+        type={type} />
       }
       {clearAllHandler && contactArray.length > 0 && (
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-4">
           <button
             type="button"
             onClick={() => clearAllHandler()}

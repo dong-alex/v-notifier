@@ -30,10 +30,10 @@ const getSchoolData = async (req: NextApiRequest, res: NextApiResponse) => {
       const opt = {
         spreadsheetId: env.GOOGLE_SHEETS_ID,
         ranges: [
-          `${req.query?.schoolName}!A7:F`,
-          `${req.query?.schoolName}!J10`,
-          `${req.query?.schoolName}!I35:M43`,
-          `${req.query?.schoolName}!M1`,
+          `${req.query?.schoolName}!A7:F`, // names
+          `${req.query?.schoolName}!J6`, // cost per person
+          `${req.query?.schoolName}!I16:M24`, // player assignment
+          `${req.query?.schoolName}!M1`, // attendance lock
         ],
       };
 

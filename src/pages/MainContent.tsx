@@ -22,10 +22,11 @@ import { SubmitButton } from "@components/paymentForm/SubmitButton";
 import { USERS } from "config/authorizedUsers";
 import { SpreadsheetDropdown } from "@components/subheader/SpreadsheetDropdown";
 import TogglePaymentOrPaidMode from "@components/subheader/TogglePaymentOrPaidMode";
+import { XPADDING } from "pages";
 
 const IS_PRODUCTION: boolean = process.env.NODE_ENV === "production";
 
-const AuthShowcase: React.FC = () => {
+const MainContent: React.FC = () => {
   const [checkedPhoneNumbers, setCheckedPhoneNumbers] = React.useState<
     Set<string>
   >(new Set());
@@ -55,7 +56,7 @@ const AuthShowcase: React.FC = () => {
   const { mutateAsync: mutatePending, isSuccess: pendingPaySet } =
     trpc.useMutation(["sheets.setPendingPay"]);
 
-  const { mutateAsync: mutatePaid, isSuccess: paidSet } = trpc.useMutation([
+  const { mutateAsync: mutatePaid, isSuccess: paidSet, isError: paidSetError } = trpc.useMutation([
     "sheets.setPaid",
   ]);
 
@@ -218,6 +219,8 @@ const AuthShowcase: React.FC = () => {
       rows.push(sc.row);
     });
 
+    setLastSentCount(rows.length);
+
     if (!spreadsheetId) {
       handleClearAll();
       return;
@@ -234,8 +237,8 @@ const AuthShowcase: React.FC = () => {
   }, [selectedContacts]);
 
   return (
-    <div className="flex-col items-center p-3 md:p-0 md:items-start">
-      <section className="flex w-full flex-col md:flex-row md:justify-between">
+    <div className={`flex-col items-center py-4 ${XPADDING} md:items-start`}>
+      <section className="flex w-full flex-col mb-4 md:flex-row md:justify-between">
         <div className="inline-flex flex-row justify-between">
           <SpreadsheetDropdown register={register} />
           {watchFields.schoolName && (
@@ -248,15 +251,15 @@ const AuthShowcase: React.FC = () => {
         </div>
         <RecentMessages />
       </section>
-      <section className="flex flex-col md:flex-row">
+      <section className="flex flex-col md:flex-row gap-x-8 gap-y-8">
         <ContactSection
           name="Contacts"
           contactArray={filteredContacts}
           contactHandler={handleContactAdd}
           isLoading={loadingContacts || schoolDataLoading}
         />
-        {isPaymentMode ? (
-          <SectionWrapper name="Send Texts" maxMdWidth="md:w-80">
+        {isPaymentMode || !watchFields.schoolName ? (
+          <SectionWrapper name="Send Texts">
             <form onSubmit={handleSubmit(onSubmit)}>
               <IndividualCost
                 title={watchFields.schoolName}
@@ -282,20 +285,27 @@ const AuthShowcase: React.FC = () => {
             </form>
           </SectionWrapper>
         ) : (
-          <SectionWrapper name="Set Paid 💸" maxMdWidth="md:w-80">
+          <SectionWrapper name="Set Paid 💸">
+            <span className="text-lg flex justify-center">{"Selected users have paid for the booking"}</span>
             <form onSubmit={handleSubmit(onPaidSubmit)}>
-              {"Set currently selected users paid status to true"}
               <SubmitButton
                 contactsSelected={
                   checkedPhoneNumbers.size > 0 || checkedNames.size > 0
                 }
                 isPaymentMode={isPaymentMode}
               />
+              <SentMessageStatus
+                  sentCount={lastSentCount}
+                  errorMessage={paidSetError}
+                  isSuccess={paidSet}
+                  type="paid"
+                />
             </form>
           </SectionWrapper>
         )}
         <ContactSection
           name="Selected"
+          type="selected"
           contactArray={selectedContacts}
           contactHandler={handleContactRemove}
           clearAllHandler={handleClearAll}
@@ -306,4 +316,4 @@ const AuthShowcase: React.FC = () => {
   );
 };
 
-export default AuthShowcase;
+export default MainContent;

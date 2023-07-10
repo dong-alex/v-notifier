@@ -10,9 +10,9 @@ interface SectionWrapperProps {
 const SectionWrapper = ({
   name,
   children,
-  maxMdWidth = "md:w-96",
+  maxMdWidth = "md:w-80",
 }: SectionWrapperProps) => (
-  <section id={name} className={`w-full ${maxMdWidth} mb-8 mr-8`}>
+  <section id={name} className={`w-full ${maxMdWidth}`}>
     <SectionHeader name={name} />
     {children}
   </section>

@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { trpc } from "utils/trpc";
 import { MoneySymbol, CurrencyDisplay } from "../currencyUtil/currency";
 import { Label } from "../shared/label";
 
