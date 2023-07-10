@@ -4,7 +4,7 @@ import React from "react";
 import Nav from "@components/nav/Nav";
 import MainContent from "./MainContent";
 
-export const XPADDING = "px-10"
+export const XPADDING = "px-4 sm:px-10"
 
 const Home: NextPage = () => {
   return (
